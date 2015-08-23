@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="night_background">#000000</color>
+    <color name="day_background">#4A90E2</color>
+    <color name="text">#ffffff</color>
+    <color name="tip">#8C8686</color>
+    <color name="tip_night">#EEEEEE</color>
+    <color name="roof">#87620F</color>
+    <color name="roof_night">#F8B51C</color>
+    <color name="body">#8B572A</color>
+</resources>
