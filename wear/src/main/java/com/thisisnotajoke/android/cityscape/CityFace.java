@@ -30,29 +30,39 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
+import android.text.format.DateFormat;
 import android.text.format.Time;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.WindowInsets;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.lang.ref.WeakReference;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
+
+import ch.hsr.geohash.WGS84Point;
 
 /**
  * Digital watch face with seconds. In ambient mode, the seconds aren't displayed. On devices with
  * low-bit ambient mode, the text is drawn without anti-aliasing in ambient mode.
  */
 public class CityFace extends CanvasWatchFaceService {
+    private static final String TAG = "CityFace";
+
     /**
      * Update rate in milliseconds for interactive mode. We update once a second since seconds are
      * displayed in interactive mode.
      */
-    private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(1);
+    private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.MINUTES.toMillis(1);
 
     /**
      * Handler message id for updating the time periodically in interactive mode.
      */
     private static final int MSG_UPDATE_TIME = 0;
+    private String mFormatString;
 
     @Override
     public Engine onCreateEngine() {
@@ -68,8 +78,7 @@ public class CityFace extends CanvasWatchFaceService {
         final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                mTime.clear(intent.getStringExtra("time-zone"));
-                mTime.setToNow();
+                mZone = DateTimeZone.forID(intent.getStringExtra("time-zone"));
             }
         };
 
@@ -79,8 +88,7 @@ public class CityFace extends CanvasWatchFaceService {
         Paint mTextPaint;
 
         boolean mAmbient;
-
-        Time mTime;
+        private DateTimeZone mZone;
 
         float mXOffset;
         float mYOffset;
@@ -90,7 +98,9 @@ public class CityFace extends CanvasWatchFaceService {
          * disable anti-aliasing in ambient mode.
          */
         boolean mLowBitAmbient;
-        private City mCity;
+        private LocationFace mCity;
+        private LocationFace.Sky mSky;
+        private WGS84Point mCurrentPoint = new WGS84Point(36.1316327,-86.7495919);
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -105,21 +115,36 @@ public class CityFace extends CanvasWatchFaceService {
             DAY_BG_COLOR = resources.getColor(R.color.day_background);
             NIGHT_BG_COLOR = resources.getColor(R.color.night_background);
             mYOffset = resources.getDimension(R.dimen.digital_y_offset);
-            mTime = new Time();
-            mTime.setToNow();
 
+            // Setup Paints
             mBackgroundPaint = new Paint();
-            updateBackgroundColor();
-
-            mCity = new Atlanta(resources);
-            mCity.predraw(mTime);
-
             mTextPaint = createTextPaint(resources.getColor(R.color.text));
 
+            // Setup time
+            mZone = DateTimeZone.forID(TimeZone.getDefault().getID());
+            if(DateFormat.is24HourFormat(CityFace.this)) {
+                mFormatString = "HH:mm";
+            } else {
+                mFormatString = "h:mm";
+            }
+
+            // Add context
+            mCity = World.getCurrentCityContextFace(resources, mCurrentPoint);
+            updateSky();
+        }
+
+        private void updateSky() {
+            LocationFace.Sky sky = LocationFace.getSky(mCurrentPoint, DateTime.now(mZone));
+            if(sky != mSky) {
+                Log.d(TAG, "Sky is now " + sky);
+                mSky = sky;
+                updateBackgroundColor();
+                mCity.onSkyUpdated(mSky);
+            }
         }
 
         private void updateBackgroundColor() {
-            if(City.isDay(mTime) && !mAmbient) {
+            if(mSky == LocationFace.Sky.DAY && !mAmbient) {
                 mBackgroundPaint.setColor(DAY_BG_COLOR);
             }else {
                 mBackgroundPaint.setColor(NIGHT_BG_COLOR);
@@ -147,10 +172,6 @@ public class CityFace extends CanvasWatchFaceService {
 
             if (visible) {
                 registerReceiver();
-
-                // Update time zone in case it changed while we weren't visible.
-                mTime.clear(TimeZone.getDefault().getID());
-                mTime.setToNow();
             } else {
                 unregisterReceiver();
             }
@@ -201,6 +222,7 @@ public class CityFace extends CanvasWatchFaceService {
         @Override
         public void onTimeTick() {
             super.onTimeTick();
+            updateSky();
             invalidate();
         }
 
@@ -226,8 +248,7 @@ public class CityFace extends CanvasWatchFaceService {
         public void onDraw(Canvas canvas, Rect bounds) {
             canvas.drawRect(0, 0, bounds.width(), bounds.height(), mBackgroundPaint);
             mCity.draw(canvas, bounds);
-            mTime.setToNow();
-            String text = String.format("%d:%02d", mTime.hour, mTime.minute);
+            String text = DateTime.now(mZone).toString(mFormatString);
             canvas.drawText(text, mXOffset, mYOffset, mTextPaint);
         }
 
@@ -254,7 +275,7 @@ public class CityFace extends CanvasWatchFaceService {
          * Handle updating the time periodically in interactive mode.
          */
         private void handleUpdateTimeMessage() {
-            invalidate();
+            onTimeTick();
             if (shouldTimerBeRunning()) {
                 long timeMs = System.currentTimeMillis();
                 long delayMs = INTERACTIVE_UPDATE_RATE_MS

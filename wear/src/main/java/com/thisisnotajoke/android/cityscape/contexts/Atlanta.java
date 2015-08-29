@@ -1,19 +1,25 @@
-package com.thisisnotajoke.android.cityscape;
+package com.thisisnotajoke.android.cityscape.contexts;
 
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
-import android.text.format.Time;
 
-public class Atlanta extends City {
+import com.thisisnotajoke.android.cityscape.LocationFace;
+import com.thisisnotajoke.android.cityscape.R;
+
+import ch.hsr.geohash.BoundingBox;
+import ch.hsr.geohash.WGS84Point;
+
+public class Atlanta extends LocationFace {
+    private static final BoundingBox BOUNDING_BOX = new BoundingBox(34.080341, 33.411764, -84.699899, -83.997117);
+
     private static int TIP_COLOR_NIGHT;
     private static int TIP_COLOR;
     private static int ROOF_COLOR;
     private static int ROOF_COLOR_NIGHT;
 
-    private boolean mDay;
     private Paint mRoofPaint;
     private Paint mTipPaint;
     private Paint mBodyPaint;
@@ -24,7 +30,7 @@ public class Atlanta extends City {
         ROOF_COLOR_NIGHT = resources.getColor(R.color.roof_night);
         ROOF_COLOR = resources.getColor(R.color.roof);
 
-        mDay = true;
+        mSky = Sky.DAY;
         mRoofPaint = new Paint();
         mTipPaint = new Paint();
         mBodyPaint = new Paint();
@@ -94,16 +100,16 @@ public class Atlanta extends City {
     }
 
     @Override
-    public void predraw(Time time) {
-        boolean newDay = isDay(time);
-        if(mDay != newDay) {
-            mDay = newDay;
-            updatePaintColor();
-        }
+    public void onSkyUpdated(Sky sky) {
+        updatePaintColor();
     }
 
     private void updatePaintColor() {
-        mRoofPaint.setColor(mDay ? ROOF_COLOR : ROOF_COLOR_NIGHT);
-        mTipPaint.setColor(mDay ? TIP_COLOR : TIP_COLOR_NIGHT);
+        mRoofPaint.setColor(mSky == Sky.DAY ? ROOF_COLOR : ROOF_COLOR_NIGHT);
+        mTipPaint.setColor(mSky == Sky.DAY ? TIP_COLOR : TIP_COLOR_NIGHT);
+    }
+
+    public static boolean contains(WGS84Point point) {
+        return BOUNDING_BOX.contains(point);
     }
 }
