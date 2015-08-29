@@ -31,7 +31,6 @@ import android.os.Message;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.DateFormat;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.WindowInsets;
@@ -99,7 +98,7 @@ public class CityFace extends CanvasWatchFaceService {
          */
         boolean mLowBitAmbient;
         private LocationFace mCity;
-        private LocationFace.Sky mSky;
+        private LocationFace.Sun mSun;
         private WGS84Point mCurrentPoint = new WGS84Point(36.1316327,-86.7495919);
 
         @Override
@@ -134,17 +133,17 @@ public class CityFace extends CanvasWatchFaceService {
         }
 
         private void updateSky() {
-            LocationFace.Sky sky = LocationFace.getSky(mCurrentPoint, DateTime.now(mZone));
-            if(sky != mSky) {
-                Log.d(TAG, "Sky is now " + sky);
-                mSky = sky;
+            LocationFace.Sun sun = LocationFace.calculateSun(mCurrentPoint, DateTime.now(mZone));
+            if(sun != mSun) {
+                Log.d(TAG, "Sun is now " + sun);
+                mSun = sun;
                 updateBackgroundColor();
-                mCity.onSkyUpdated(mSky);
+                mCity.onSunUpdated(mSun);
             }
         }
 
         private void updateBackgroundColor() {
-            if(mSky == LocationFace.Sky.DAY && !mAmbient) {
+            if(mSun == LocationFace.Sun.DAY && !mAmbient) {
                 mBackgroundPaint.setColor(DAY_BG_COLOR);
             }else {
                 mBackgroundPaint.setColor(NIGHT_BG_COLOR);

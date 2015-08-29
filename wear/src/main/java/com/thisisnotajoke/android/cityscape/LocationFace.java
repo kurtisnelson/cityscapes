@@ -15,9 +15,10 @@ import ch.hsr.geohash.WGS84Point;
 
 public abstract class LocationFace {
     private static final String TAG = "LocationFace";
-    protected Sky mSky;
+    protected Sun mSun = Sun.DAY;
+    protected boolean mAmbient = false;
 
-    protected enum Sky {
+    protected enum Sun {
         DAY,
         NIGHT,
         SUNSET,
@@ -26,11 +27,15 @@ public abstract class LocationFace {
 
     public abstract void draw(Canvas canvas, Rect bounds);
 
-    public void onSkyUpdated(Sky sky) {
-        mSky = sky;
+    public void onSunUpdated(Sun sun) {
+        mSun = sun;
     }
 
-    public static Sky getSky(WGS84Point point, DateTime time) {
+    public void onAmbientModeChanged(boolean inAmbientMode) {
+        mAmbient = inAmbientMode;
+    }
+
+    public static Sun calculateSun(WGS84Point point, DateTime time) {
         Log.d(TAG, "Calculating solar schedule on " + time.toString());
         GregorianCalendar calendar = time.toGregorianCalendar();
         SunriseSunsetCalculator calculator = new SunriseSunsetCalculator(new Location(point.getLatitude(), point.getLongitude()), time.getZone().getID());
@@ -39,15 +44,14 @@ public abstract class LocationFace {
         DateTime sunriseStart = new DateTime(calculator.getCivilSunriseCalendarForDate(calendar));
         DateTime sunriseEnd = new DateTime(calculator.getAstronomicalSunriseCalendarForDate(calendar));
         if(time.isBefore(sunriseStart) || time.isAfter(sunsetEnd)) {
-            return Sky.NIGHT;
+            return Sun.NIGHT;
         } else if(time.isAfter(sunriseEnd) && time.isBefore(sunsetStart)) {
-            return Sky.DAY;
+            return Sun.DAY;
         } else if(time.isBefore(sunriseEnd)) {
-            return Sky.SUNRISE;
+            return Sun.SUNRISE;
         } else {
-            return Sky.SUNSET;
+            return Sun.SUNSET;
         }
     }
 
-    public abstract void onAmbientModeChanged(boolean inAmbientMode);
 }

@@ -30,13 +30,11 @@ public class Atlanta extends LocationFace {
         ROOF_COLOR_NIGHT = resources.getColor(R.color.roof_night);
         ROOF_COLOR = resources.getColor(R.color.roof);
 
-        mSky = Sky.DAY;
         mRoofPaint = new Paint();
         mTipPaint = new Paint();
         mBodyPaint = new Paint();
         mBodyPaint.setColor(resources.getColor(R.color.body));
-        onAmbientModeChanged(false);
-        updatePaintColor();
+        updatePaint();
     }
 
     @Override
@@ -87,7 +85,20 @@ public class Atlanta extends LocationFace {
 
     @Override
     public void onAmbientModeChanged(boolean inAmbientMode) {
-        if(inAmbientMode) {
+        super.onAmbientModeChanged(inAmbientMode);
+        updatePaint();
+    }
+
+    @Override
+    public void onSunUpdated(Sun sun) {
+        super.onSunUpdated(sun);
+        updatePaint();
+    }
+
+    private void updatePaint() {
+        mRoofPaint.setColor(mSun == Sun.DAY ? ROOF_COLOR : ROOF_COLOR_NIGHT);
+        mTipPaint.setColor(mSun == Sun.DAY ? TIP_COLOR : TIP_COLOR_NIGHT);
+        if(mAmbient) {
             mRoofPaint.setStyle(Paint.Style.STROKE);
             mTipPaint.setStyle(Paint.Style.STROKE);
             mBodyPaint.setStyle(Paint.Style.STROKE);
@@ -96,17 +107,7 @@ public class Atlanta extends LocationFace {
             mTipPaint.setStyle(Paint.Style.FILL);
             mBodyPaint.setStyle(Paint.Style.FILL);
         }
-        mRoofPaint.setAntiAlias(!inAmbientMode);
-    }
-
-    @Override
-    public void onSkyUpdated(Sky sky) {
-        updatePaintColor();
-    }
-
-    private void updatePaintColor() {
-        mRoofPaint.setColor(mSky == Sky.DAY ? ROOF_COLOR : ROOF_COLOR_NIGHT);
-        mTipPaint.setColor(mSky == Sky.DAY ? TIP_COLOR : TIP_COLOR_NIGHT);
+        mRoofPaint.setAntiAlias(!mAmbient);
     }
 
     public static boolean contains(WGS84Point point) {

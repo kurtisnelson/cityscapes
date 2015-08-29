@@ -16,11 +16,6 @@ public class Nashville extends LocationFace {
 
     }
 
-    @Override
-    public void onAmbientModeChanged(boolean inAmbientMode) {
-
-    }
-
     public static boolean contains(WGS84Point point) {
         return BOUNDING_BOX.contains(point);
     }
