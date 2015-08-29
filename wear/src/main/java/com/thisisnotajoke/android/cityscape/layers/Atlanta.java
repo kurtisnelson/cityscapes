@@ -1,4 +1,4 @@
-package com.thisisnotajoke.android.cityscape.contexts;
+package com.thisisnotajoke.android.cityscape.layers;
 
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -6,13 +6,13 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
 
-import com.thisisnotajoke.android.cityscape.LocationFace;
+import com.thisisnotajoke.android.cityscape.FaceLayer;
 import com.thisisnotajoke.android.cityscape.R;
 
 import ch.hsr.geohash.BoundingBox;
 import ch.hsr.geohash.WGS84Point;
 
-public class Atlanta extends LocationFace {
+public class Atlanta extends FaceLayer {
     private static final BoundingBox BOUNDING_BOX = new BoundingBox(34.080341, 33.411764, -84.699899, -83.997117);
 
     private static int TIP_COLOR_NIGHT;

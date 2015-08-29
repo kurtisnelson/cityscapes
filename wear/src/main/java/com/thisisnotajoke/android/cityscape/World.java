@@ -3,16 +3,16 @@ package com.thisisnotajoke.android.cityscape;
 import android.content.res.Resources;
 import android.util.Log;
 
-import com.thisisnotajoke.android.cityscape.contexts.Atlanta;
-import com.thisisnotajoke.android.cityscape.contexts.Nashville;
-import com.thisisnotajoke.android.cityscape.contexts.Rural;
+import com.thisisnotajoke.android.cityscape.layers.Atlanta;
+import com.thisisnotajoke.android.cityscape.layers.Nashville;
+import com.thisisnotajoke.android.cityscape.layers.Rural;
 
 import ch.hsr.geohash.WGS84Point;
 
 public class World {
     private static final String TAG = "World";
 
-    public static LocationFace getCurrentCityContextFace(Resources resources, WGS84Point location) {
+    public static FaceLayer getCurrentCityFace(Resources resources, WGS84Point location) {
         if(Atlanta.contains(location)) {
             Log.d(TAG, "Detected Atlanta");
             return new Atlanta(resources);

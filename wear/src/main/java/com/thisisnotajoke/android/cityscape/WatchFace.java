@@ -35,6 +35,8 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.WindowInsets;
 
+import com.thisisnotajoke.android.cityscape.layers.Sky;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -48,8 +50,8 @@ import ch.hsr.geohash.WGS84Point;
  * Digital watch face with seconds. In ambient mode, the seconds aren't displayed. On devices with
  * low-bit ambient mode, the text is drawn without anti-aliasing in ambient mode.
  */
-public class CityFace extends CanvasWatchFaceService {
-    private static final String TAG = "CityFace";
+public class WatchFace extends CanvasWatchFaceService {
+    private static final String TAG = "WatchFace";
 
     /**
      * Update rate in milliseconds for interactive mode. We update once a second since seconds are
@@ -69,8 +71,6 @@ public class CityFace extends CanvasWatchFaceService {
     }
 
     private class Engine extends CanvasWatchFaceService.Engine {
-        private int DAY_BG_COLOR;
-        private int NIGHT_BG_COLOR;
 
         final Handler mUpdateTimeHandler = new EngineHandler(this);
 
@@ -83,7 +83,6 @@ public class CityFace extends CanvasWatchFaceService {
 
         boolean mRegisteredTimeZoneReceiver = false;
 
-        Paint mBackgroundPaint;
         Paint mTextPaint;
 
         boolean mAmbient;
@@ -97,56 +96,46 @@ public class CityFace extends CanvasWatchFaceService {
          * disable anti-aliasing in ambient mode.
          */
         boolean mLowBitAmbient;
-        private LocationFace mCity;
-        private LocationFace.Sun mSun;
+        private FaceLayer mCity;
+        private FaceLayer mSky;
+        private FaceLayer.Sun mSun;
         private WGS84Point mCurrentPoint = new WGS84Point(36.1316327,-86.7495919);
 
         @Override
         public void onCreate(SurfaceHolder holder) {
             super.onCreate(holder);
 
-            setWatchFaceStyle(new WatchFaceStyle.Builder(CityFace.this)
+            setWatchFaceStyle(new WatchFaceStyle.Builder(WatchFace.this)
                     .setCardPeekMode(WatchFaceStyle.PEEK_MODE_SHORT)
                     .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
                     .setShowSystemUiTime(false)
                     .build());
-            Resources resources = CityFace.this.getResources();
-            DAY_BG_COLOR = resources.getColor(R.color.day_background);
-            NIGHT_BG_COLOR = resources.getColor(R.color.night_background);
+            Resources resources = WatchFace.this.getResources();
             mYOffset = resources.getDimension(R.dimen.digital_y_offset);
 
-            // Setup Paints
-            mBackgroundPaint = new Paint();
             mTextPaint = createTextPaint(resources.getColor(R.color.text));
 
             // Setup time
             mZone = DateTimeZone.forID(TimeZone.getDefault().getID());
-            if(DateFormat.is24HourFormat(CityFace.this)) {
+            if(DateFormat.is24HourFormat(WatchFace.this)) {
                 mFormatString = "HH:mm";
             } else {
                 mFormatString = "h:mm";
             }
 
             // Add context
-            mCity = World.getCurrentCityContextFace(resources, mCurrentPoint);
-            updateSky();
+            mSky = new Sky(resources);
+            mCity = World.getCurrentCityFace(resources, mCurrentPoint);
+            updateSun();
         }
 
-        private void updateSky() {
-            LocationFace.Sun sun = LocationFace.calculateSun(mCurrentPoint, DateTime.now(mZone));
+        private void updateSun() {
+            FaceLayer.Sun sun = FaceLayer.calculateSun(mCurrentPoint, DateTime.now(mZone));
             if(sun != mSun) {
                 Log.d(TAG, "Sun is now " + sun);
                 mSun = sun;
-                updateBackgroundColor();
                 mCity.onSunUpdated(mSun);
-            }
-        }
-
-        private void updateBackgroundColor() {
-            if(mSun == LocationFace.Sun.DAY && !mAmbient) {
-                mBackgroundPaint.setColor(DAY_BG_COLOR);
-            }else {
-                mBackgroundPaint.setColor(NIGHT_BG_COLOR);
+                mSky.onSunUpdated(mSun);
             }
         }
 
@@ -186,7 +175,7 @@ public class CityFace extends CanvasWatchFaceService {
             }
             mRegisteredTimeZoneReceiver = true;
             IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
-            CityFace.this.registerReceiver(mTimeZoneReceiver, filter);
+            WatchFace.this.registerReceiver(mTimeZoneReceiver, filter);
         }
 
         private void unregisterReceiver() {
@@ -194,7 +183,7 @@ public class CityFace extends CanvasWatchFaceService {
                 return;
             }
             mRegisteredTimeZoneReceiver = false;
-            CityFace.this.unregisterReceiver(mTimeZoneReceiver);
+            WatchFace.this.unregisterReceiver(mTimeZoneReceiver);
         }
 
         @Override
@@ -202,7 +191,7 @@ public class CityFace extends CanvasWatchFaceService {
             super.onApplyWindowInsets(insets);
 
             // Load resources that have alternate values for round watches.
-            Resources resources = CityFace.this.getResources();
+            Resources resources = WatchFace.this.getResources();
             boolean isRound = insets.isRound();
             mXOffset = resources.getDimension(isRound
                     ? R.dimen.digital_x_offset_round : R.dimen.digital_x_offset);
@@ -221,7 +210,7 @@ public class CityFace extends CanvasWatchFaceService {
         @Override
         public void onTimeTick() {
             super.onTimeTick();
-            updateSky();
+            updateSun();
             invalidate();
         }
 
@@ -230,11 +219,11 @@ public class CityFace extends CanvasWatchFaceService {
             super.onAmbientModeChanged(inAmbientMode);
             if (mAmbient != inAmbientMode) {
                 mCity.onAmbientModeChanged(inAmbientMode);
+                mSky.onAmbientModeChanged(inAmbientMode);
                 mAmbient = inAmbientMode;
                 if (mLowBitAmbient) {
                     mTextPaint.setAntiAlias(!inAmbientMode);
                 }
-                updateBackgroundColor();
                 invalidate();
             }
 
@@ -245,7 +234,7 @@ public class CityFace extends CanvasWatchFaceService {
 
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
-            canvas.drawRect(0, 0, bounds.width(), bounds.height(), mBackgroundPaint);
+            mSky.draw(canvas, bounds);
             mCity.draw(canvas, bounds);
             String text = DateTime.now(mZone).toString(mFormatString);
             canvas.drawText(text, mXOffset, mYOffset, mTextPaint);
@@ -285,15 +274,15 @@ public class CityFace extends CanvasWatchFaceService {
     }
 
     private static class EngineHandler extends Handler {
-        private final WeakReference<CityFace.Engine> mWeakReference;
+        private final WeakReference<WatchFace.Engine> mWeakReference;
 
-        public EngineHandler(CityFace.Engine reference) {
+        public EngineHandler(WatchFace.Engine reference) {
             mWeakReference = new WeakReference<>(reference);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            CityFace.Engine engine = mWeakReference.get();
+            WatchFace.Engine engine = mWeakReference.get();
             if (engine != null) {
                 switch (msg.what) {
                     case MSG_UPDATE_TIME:

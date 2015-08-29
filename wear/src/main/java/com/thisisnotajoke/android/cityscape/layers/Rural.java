@@ -1,11 +1,11 @@
-package com.thisisnotajoke.android.cityscape.contexts;
+package com.thisisnotajoke.android.cityscape.layers;
 
 import android.graphics.Canvas;
 import android.graphics.Rect;
 
-import com.thisisnotajoke.android.cityscape.LocationFace;
+import com.thisisnotajoke.android.cityscape.FaceLayer;
 
-public class Rural extends LocationFace {
+public class Rural extends FaceLayer {
     @Override
     public void draw(Canvas canvas, Rect bounds) {
 

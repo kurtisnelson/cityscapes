@@ -13,8 +13,8 @@ import java.util.GregorianCalendar;
 
 import ch.hsr.geohash.WGS84Point;
 
-public abstract class LocationFace {
-    private static final String TAG = "LocationFace";
+public abstract class FaceLayer {
+    private static final String TAG = "FaceLayer";
     protected Sun mSun = Sun.DAY;
     protected boolean mAmbient = false;
 
