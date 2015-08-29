@@ -19,16 +19,19 @@ public class Nashville extends FaceLayer {
 
     private static int HOLE_COLOR;
     private static int HOLE_COLOR_AMBIENT;
+    private static int GLASS_COLOR;
+    private static int GLASS_COLOR_NIGHT;
 
     public Nashville(Resources resources) {
         mBodyPaint = new Paint();
         mBodyPaint.setColor(resources.getColor(R.color.nashville_body));
         mGlassPaint = new Paint();
-        mGlassPaint.setColor(resources.getColor(R.color.nashville_glass));
         mHolePaint = new Paint();
 
         HOLE_COLOR = resources.getColor(R.color.black);
         HOLE_COLOR_AMBIENT = resources.getColor(R.color.nashville_hole_ambient);
+        GLASS_COLOR = resources.getColor(R.color.nashville_glass);
+        GLASS_COLOR_NIGHT = resources.getColor(R.color.nashville_glass_night);
         updatePaint();
     }
 
@@ -65,6 +68,12 @@ public class Nashville extends FaceLayer {
         updatePaint();
     }
 
+    @Override
+    public void onSunUpdated(Sun sun) {
+        super.onSunUpdated(sun);
+        updatePaint();
+    }
+
     private void updatePaint() {
         if(mAmbient) {
             mBodyPaint.setStyle(Paint.Style.STROKE);
@@ -74,6 +83,11 @@ public class Nashville extends FaceLayer {
             mBodyPaint.setStyle(Paint.Style.FILL);
             mGlassPaint.setStyle(Paint.Style.FILL);
             mHolePaint.setColor(HOLE_COLOR);
+        }
+        if(mSun == Sun.DAY || mSun == Sun.SUNRISE) {
+            mGlassPaint.setColor(GLASS_COLOR);
+        } else {
+            mGlassPaint.setColor(GLASS_COLOR_NIGHT);
         }
         mHolePaint.setAntiAlias(!mAmbient);
     }
