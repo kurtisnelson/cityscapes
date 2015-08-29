@@ -25,6 +25,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -35,6 +36,9 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.WindowInsets;
 
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.wearable.Wearable;
 import com.thisisnotajoke.android.cityscape.layers.Sky;
 
 import org.joda.time.DateTime;
@@ -70,7 +74,7 @@ public class WatchFace extends CanvasWatchFaceService {
         return new Engine();
     }
 
-    private class Engine extends CanvasWatchFaceService.Engine {
+    private class Engine extends CanvasWatchFaceService.Engine implements GoogleApiClient.ConnectionCallbacks {
 
         final Handler mUpdateTimeHandler = new EngineHandler(this);
 
@@ -99,21 +103,30 @@ public class WatchFace extends CanvasWatchFaceService {
         private FaceLayer mCity;
         private FaceLayer mSky;
         private FaceLayer.Sun mSun;
-        private WGS84Point mCurrentPoint = new WGS84Point(36.1316327,-86.7495919);
+        private WGS84Point mCurrentPoint;
+        private Resources mResources;
+        private GoogleApiClient mGoogleApiClient;
 
         @Override
         public void onCreate(SurfaceHolder holder) {
             super.onCreate(holder);
+
+            mGoogleApiClient = new GoogleApiClient.Builder(WatchFace.this)
+                    .addApi(LocationServices.API)
+                    .addApi(Wearable.API)  // used for data layer API
+                    .addConnectionCallbacks(this)
+                    .build();
+            mGoogleApiClient.connect();
 
             setWatchFaceStyle(new WatchFaceStyle.Builder(WatchFace.this)
                     .setCardPeekMode(WatchFaceStyle.PEEK_MODE_SHORT)
                     .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
                     .setShowSystemUiTime(false)
                     .build());
-            Resources resources = WatchFace.this.getResources();
-            mYOffset = resources.getDimension(R.dimen.digital_y_offset);
+            mResources = WatchFace.this.getResources();
+            mYOffset = mResources.getDimension(R.dimen.digital_y_offset);
 
-            mTextPaint = createTextPaint(resources.getColor(R.color.text));
+            mTextPaint = createTextPaint(mResources.getColor(R.color.text));
 
             // Setup time
             mZone = DateTimeZone.forID(TimeZone.getDefault().getID());
@@ -124,9 +137,20 @@ public class WatchFace extends CanvasWatchFaceService {
             }
 
             // Add context
-            mSky = new Sky(resources);
-            mCity = World.getCurrentCityFace(resources, mCurrentPoint);
+            mSky = new Sky(mResources);
+            mCity = World.getCurrentCityFace(mResources, mCurrentPoint);
             updateSun();
+        }
+
+        private void updateLocation() {
+            if(mGoogleApiClient.isConnected()) {
+                Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                Log.d(TAG, "Got location of " + location);
+                if(location != null && (location.getLongitude() != mCurrentPoint.getLongitude() || location.getLatitude() != mCurrentPoint.getLatitude())) {
+                    mCurrentPoint = new WGS84Point(location.getLatitude(), location.getLongitude());
+                    mCity = World.getCurrentCityFace(mResources, mCurrentPoint);
+                }
+            }
         }
 
         private void updateSun() {
@@ -159,9 +183,11 @@ public class WatchFace extends CanvasWatchFaceService {
             super.onVisibilityChanged(visible);
 
             if (visible) {
+                mGoogleApiClient.connect();
                 registerReceiver();
             } else {
                 unregisterReceiver();
+                mGoogleApiClient.disconnect();
             }
 
             // Whether the timer should be running depends on whether we're visible (as well as
@@ -210,6 +236,9 @@ public class WatchFace extends CanvasWatchFaceService {
         @Override
         public void onTimeTick() {
             super.onTimeTick();
+            if(DateTime.now(mZone).minuteOfHour().get() % 10 == 0) {
+                updateLocation();
+            }
             updateSun();
             invalidate();
         }
@@ -270,6 +299,16 @@ public class WatchFace extends CanvasWatchFaceService {
                         - (timeMs % INTERACTIVE_UPDATE_RATE_MS);
                 mUpdateTimeHandler.sendEmptyMessageDelayed(MSG_UPDATE_TIME, delayMs);
             }
+        }
+
+        @Override
+        public void onConnected(Bundle bundle) {
+            updateLocation();
+        }
+
+        @Override
+        public void onConnectionSuspended(int i) {
+
         }
     }
 

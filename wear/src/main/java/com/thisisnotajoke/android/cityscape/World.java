@@ -13,6 +13,9 @@ public class World {
     private static final String TAG = "World";
 
     public static FaceLayer getCurrentCityFace(Resources resources, WGS84Point location) {
+        if(location == null) {
+            return new Rural();
+        }
         if(Atlanta.contains(location)) {
             Log.d(TAG, "Detected Atlanta");
             return new Atlanta(resources);
@@ -20,7 +23,7 @@ public class World {
             Log.d(TAG, "Detected Nashville");
             return new Nashville(resources);
         }
-        Log.w(TAG, "We don't know the city, defaulting to rural");
+        Log.w(TAG, "We don't know that part of the world yet, defaulting to rural");
         return new Rural();
     }
 }

@@ -36,6 +36,8 @@ public abstract class FaceLayer {
     }
 
     public static Sun calculateSun(WGS84Point point, DateTime time) {
+        if(point == null)
+            return Sun.NIGHT;
         Log.d(TAG, "Calculating solar schedule on " + time.toString());
         GregorianCalendar calendar = time.toGregorianCalendar();
         SunriseSunsetCalculator calculator = new SunriseSunsetCalculator(new Location(point.getLatitude(), point.getLongitude()), time.getZone().getID());
