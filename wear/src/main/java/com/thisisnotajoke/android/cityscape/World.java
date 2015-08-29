@@ -18,7 +18,7 @@ public class World {
             return new Atlanta(resources);
         } else if(Nashville.contains(location)) {
             Log.d(TAG, "Detected Nashville");
-            return new Nashville();
+            return new Nashville(resources);
         }
         Log.w(TAG, "We don't know the city, defaulting to rural");
         return new Rural();

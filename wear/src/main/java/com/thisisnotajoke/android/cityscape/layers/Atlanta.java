@@ -20,20 +20,20 @@ public class Atlanta extends FaceLayer {
     private static int ROOF_COLOR;
     private static int ROOF_COLOR_NIGHT;
 
-    private Paint mRoofPaint;
-    private Paint mTipPaint;
-    private Paint mBodyPaint;
+    private final Paint mRoofPaint;
+    private final Paint mTipPaint;
+    private final Paint mBodyPaint;
 
     public Atlanta(Resources resources) {
-        TIP_COLOR_NIGHT = resources.getColor(R.color.tip_night);
-        TIP_COLOR = resources.getColor(R.color.tip);
-        ROOF_COLOR_NIGHT = resources.getColor(R.color.roof_night);
-        ROOF_COLOR = resources.getColor(R.color.roof);
+        TIP_COLOR_NIGHT = resources.getColor(R.color.atlanta_tip_night);
+        TIP_COLOR = resources.getColor(R.color.atlanta_tip);
+        ROOF_COLOR_NIGHT = resources.getColor(R.color.atlanta_roof_night);
+        ROOF_COLOR = resources.getColor(R.color.atlanta_roof);
 
         mRoofPaint = new Paint();
         mTipPaint = new Paint();
         mBodyPaint = new Paint();
-        mBodyPaint.setColor(resources.getColor(R.color.body));
+        mBodyPaint.setColor(resources.getColor(R.color.atlanta_body));
         updatePaint();
     }
 

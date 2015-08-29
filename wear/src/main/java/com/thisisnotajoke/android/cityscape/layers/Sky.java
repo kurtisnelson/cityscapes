@@ -11,12 +11,16 @@ import com.thisisnotajoke.android.cityscape.R;
 public class Sky extends FaceLayer {
     private int DAY_BG_COLOR;
     private int NIGHT_BG_COLOR;
+    private int SUNRISE_BG_COLOR;
+    private int SUNSET_BG_COLOR;
 
     Paint mPaint;
 
     public Sky(Resources resources) {
-        DAY_BG_COLOR = resources.getColor(R.color.day_background);
-        NIGHT_BG_COLOR = resources.getColor(R.color.night_background);
+        DAY_BG_COLOR = resources.getColor(R.color.sky_day);
+        NIGHT_BG_COLOR = resources.getColor(R.color.sky_night);
+        SUNRISE_BG_COLOR = resources.getColor(R.color.sky_sunrise);
+        SUNSET_BG_COLOR = resources.getColor(R.color.sky_sunset);
 
         mPaint = new Paint();
         updatePaint();
@@ -40,9 +44,17 @@ public class Sky extends FaceLayer {
     }
 
     private void updatePaint() {
-        if(mSun == FaceLayer.Sun.DAY && !mAmbient) {
+        if(mAmbient) {
+            mPaint.setColor(NIGHT_BG_COLOR);
+            return;
+        }
+        if(mSun == FaceLayer.Sun.DAY) {
             mPaint.setColor(DAY_BG_COLOR);
-        }else {
+        } else if (mSun == Sun.SUNRISE) {
+            mPaint.setColor(SUNRISE_BG_COLOR);
+        } else if (mSun == Sun.SUNSET) {
+            mPaint.setColor(SUNSET_BG_COLOR);
+        } else {
             mPaint.setColor(NIGHT_BG_COLOR);
         }
     }
