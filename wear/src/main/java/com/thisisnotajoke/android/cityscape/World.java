@@ -41,7 +41,7 @@ public class World {
         SunriseSunsetCalculator calculator = new SunriseSunsetCalculator(new Location(point.getLatitude(), point.getLongitude()), time.getZone().toTimeZone());
         DateTime dusk = new DateTime(calculator.getOfficialSunsetCalendarForDate(calendar));
         DateTime sunset = new DateTime(calculator.getCivilSunsetCalendarForDate(calendar));
-        DateTime dawn = new DateTime(calculator.getCivilSunsetCalendarForDate(calendar));
+        DateTime dawn = new DateTime(calculator.getCivilSunriseCalendarForDate(calendar));
         DateTime sunrise = new DateTime(calculator.getOfficialSunriseCalendarForDate(calendar));
         if(time.isBefore(dawn) || time.isAfter(sunset)) {
             return Sun.NIGHT;
