@@ -15,7 +15,7 @@
     <!-- nashville -->
     <color name="nashville_body">#8C8686</color>
     <color name="nashville_glass">#0000AA</color>
-    <color name="nashville_glass_night">#000055</color>
+    <color name="nashville_glass_night">#000044</color>
     <color name="nashville_hole_ambient">#161616</color>
 
 </resources>

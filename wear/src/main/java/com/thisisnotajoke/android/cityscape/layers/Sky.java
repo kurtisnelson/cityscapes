@@ -7,6 +7,7 @@ import android.graphics.Rect;
 
 import com.thisisnotajoke.android.cityscape.FaceLayer;
 import com.thisisnotajoke.android.cityscape.R;
+import com.thisisnotajoke.android.cityscape.Sun;
 
 public class Sky extends FaceLayer {
     private int DAY_BG_COLOR;
@@ -48,7 +49,7 @@ public class Sky extends FaceLayer {
             mPaint.setColor(NIGHT_BG_COLOR);
             return;
         }
-        if(mSun == FaceLayer.Sun.DAY) {
+        if(mSun == Sun.DAY) {
             mPaint.setColor(DAY_BG_COLOR);
         } else if (mSun == Sun.SUNRISE) {
             mPaint.setColor(SUNRISE_BG_COLOR);

@@ -36,7 +36,12 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.WindowInsets;
 
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.wearable.Wearable;
 import com.thisisnotajoke.android.cityscape.layers.Sky;
@@ -74,7 +79,7 @@ public class WatchFace extends CanvasWatchFaceService {
         return new Engine();
     }
 
-    private class Engine extends CanvasWatchFaceService.Engine implements GoogleApiClient.ConnectionCallbacks {
+    private class Engine extends CanvasWatchFaceService.Engine implements GoogleApiClient.ConnectionCallbacks, LocationListener {
 
         final Handler mUpdateTimeHandler = new EngineHandler(this);
 
@@ -91,6 +96,7 @@ public class WatchFace extends CanvasWatchFaceService {
 
         boolean mAmbient;
         private DateTimeZone mZone;
+        private DateTime mLastLocationUpdate = DateTime.now();
 
         float mXOffset;
         float mYOffset;
@@ -102,7 +108,7 @@ public class WatchFace extends CanvasWatchFaceService {
         boolean mLowBitAmbient;
         private FaceLayer mCity;
         private FaceLayer mSky;
-        private FaceLayer.Sun mSun;
+        private Sun mSun;
         private WGS84Point mCurrentPoint;
         private Resources mResources;
         private GoogleApiClient mGoogleApiClient;
@@ -115,6 +121,12 @@ public class WatchFace extends CanvasWatchFaceService {
                     .addApi(LocationServices.API)
                     .addApi(Wearable.API)  // used for data layer API
                     .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
+                        @Override
+                        public void onConnectionFailed(ConnectionResult connectionResult) {
+                            Log.e(TAG, "Could not connect to play services: " + connectionResult.toString());
+                        }
+                    })
                     .build();
             mGoogleApiClient.connect();
 
@@ -142,19 +154,8 @@ public class WatchFace extends CanvasWatchFaceService {
             updateSun();
         }
 
-        private void updateLocation() {
-            if(mGoogleApiClient.isConnected()) {
-                Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-                Log.d(TAG, "Got location of " + location);
-                if(location != null && (location.getLongitude() != mCurrentPoint.getLongitude() || location.getLatitude() != mCurrentPoint.getLatitude())) {
-                    mCurrentPoint = new WGS84Point(location.getLatitude(), location.getLongitude());
-                    mCity = World.getCurrentCityFace(mResources, mCurrentPoint);
-                }
-            }
-        }
-
         private void updateSun() {
-            FaceLayer.Sun sun = FaceLayer.calculateSun(mCurrentPoint, DateTime.now(mZone));
+            Sun sun = World.calculateSun(mCurrentPoint, DateTime.now(mZone));
             if(sun != mSun) {
                 Log.d(TAG, "Sun is now " + sun);
                 mSun = sun;
@@ -236,8 +237,8 @@ public class WatchFace extends CanvasWatchFaceService {
         @Override
         public void onTimeTick() {
             super.onTimeTick();
-            if(DateTime.now(mZone).minuteOfHour().get() % 10 == 0) {
-                updateLocation();
+            if(DateTime.now().isAfter(mLastLocationUpdate.plusMinutes(30))) {
+                requestLocationUpdate();
             }
             updateSun();
             invalidate();
@@ -303,12 +304,46 @@ public class WatchFace extends CanvasWatchFaceService {
 
         @Override
         public void onConnected(Bundle bundle) {
-            updateLocation();
+            requestLocationUpdate();
         }
 
         @Override
         public void onConnectionSuspended(int i) {
 
+        }
+
+        private void requestLocationUpdate() {
+            if(!mGoogleApiClient.isConnected())
+                return;
+            LocationRequest locationRequest = LocationRequest.create()
+                    .setPriority(LocationRequest.PRIORITY_LOW_POWER)
+                    .setInterval(TimeUnit.MINUTES.toMillis(10))
+                    .setNumUpdates(1);
+
+            LocationServices.FusedLocationApi
+                    .requestLocationUpdates(mGoogleApiClient, locationRequest, this)
+                    .setResultCallback(new ResultCallback<Status>() {
+                        @Override
+                        public void onResult(Status status) {
+                            if(!status.isSuccess()) {
+                                Log.w(TAG, "Couldn't request location: " + status.getStatusMessage());
+                            }
+                        }
+                    });
+        }
+
+        @Override
+        public void onLocationChanged(Location location) {
+            mLastLocationUpdate = DateTime.now(mZone);
+            if(location == null) {
+                Log.w(TAG, "Got null location");
+                return;
+            }
+            Log.d(TAG, "Location changed");
+            if(mCurrentPoint == null || location.getLongitude() != mCurrentPoint.getLongitude() || location.getLatitude() != mCurrentPoint.getLatitude()) {
+                mCurrentPoint = new WGS84Point(location.getLatitude(), location.getLongitude());
+                mCity = World.getCurrentCityFace(mResources, mCurrentPoint);
+            }
         }
     }
 

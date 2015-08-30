@@ -8,6 +8,7 @@ import android.graphics.Rect;
 
 import com.thisisnotajoke.android.cityscape.FaceLayer;
 import com.thisisnotajoke.android.cityscape.R;
+import com.thisisnotajoke.android.cityscape.Sun;
 
 import ch.hsr.geohash.BoundingBox;
 import ch.hsr.geohash.WGS84Point;
