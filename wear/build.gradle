@@ -9,7 +9,7 @@ android {
         applicationId "com.thisisnotajoke.android.cityscape"
         minSdkVersion 22
         targetSdkVersion 22
-        versionCode 4ad
+        versionCode 4
         versionName "1.0"
     }
     buildTypes {
