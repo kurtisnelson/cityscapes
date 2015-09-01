@@ -16,6 +16,7 @@
 
 package com.thisisnotajoke.android.cityscape;
 
+import android.animation.ValueAnimator;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -33,8 +34,9 @@ import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.SurfaceHolder;
-import android.view.WindowInsets;
+import android.view.animation.DecelerateInterpolator;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -95,22 +97,19 @@ public class WatchFace extends CanvasWatchFaceService {
         Paint mTextPaint;
 
         boolean mAmbient;
+        boolean mLowBitAmbient;
         private DateTimeZone mZone;
 
-        float mXOffset;
-        float mYOffset;
-
-        /**
-         * Whether the display supports fewer bits for each color in ambient mode. When true, we
-         * disable anti-aliasing in ambient mode.
-         */
-        boolean mLowBitAmbient;
         private FaceLayer mCity;
         private FaceLayer mSky;
         private Sun mSun;
         private WGS84Point mCurrentPoint = new WGS84Point(36.1316327,-86.7495919);
         private Resources mResources;
         private GoogleApiClient mGoogleApiClient;
+
+        private ValueAnimator mBottomBoundAnimator = new ValueAnimator();
+        private Rect mCardBounds = new Rect();
+        private int mHeight = 0;
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -131,13 +130,13 @@ public class WatchFace extends CanvasWatchFaceService {
             mGoogleApiClient.connect();
 
             setWatchFaceStyle(new WatchFaceStyle.Builder(WatchFace.this)
-                    .setCardPeekMode(WatchFaceStyle.PEEK_MODE_SHORT)
+                    .setCardPeekMode(WatchFaceStyle.PEEK_MODE_VARIABLE)
                     .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
                     .setShowSystemUiTime(false)
+                    .setHotwordIndicatorGravity(Gravity.TOP | Gravity.RIGHT)
+                    .setStatusBarGravity(Gravity.TOP | Gravity.LEFT)
                     .build());
             mResources = WatchFace.this.getResources();
-            mYOffset = mResources.getDimension(R.dimen.digital_y_offset);
-
             mTextPaint = createTextPaint(mResources.getColor(R.color.text));
 
             // Setup time
@@ -154,81 +153,10 @@ public class WatchFace extends CanvasWatchFaceService {
             updateSun();
         }
 
-        private void updateSun() {
-            Sun sun = World.calculateSun(mCurrentPoint, DateTime.now(mZone));
-            if(sun != mSun) {
-                Log.d(TAG, "Sun is now " + sun);
-                mSun = sun;
-                mCity.onSunUpdated(mSun);
-                mSky.onSunUpdated(mSun);
-            }
-        }
-
         @Override
         public void onDestroy() {
             mUpdateTimeHandler.removeMessages(MSG_UPDATE_TIME);
             super.onDestroy();
-        }
-
-        private Paint createTextPaint(int textColor) {
-            Typeface typeface = Typeface.createFromAsset(getAssets(), "BigCaslon.ttf");
-            Paint paint = new Paint();
-            paint.setColor(textColor);
-            paint.setTypeface(typeface);
-            paint.setAntiAlias(true);
-            return paint;
-        }
-
-        @Override
-        public void onVisibilityChanged(boolean visible) {
-            super.onVisibilityChanged(visible);
-
-            if (visible) {
-                registerReceiver();
-            } else {
-                unregisterReceiver();
-            }
-
-            // Whether the timer should be running depends on whether we're visible (as well as
-            // whether we're in ambient mode), so we may need to start or stop the timer.
-            updateTimer();
-        }
-
-        private void registerReceiver() {
-            mGoogleApiClient.connect();
-            if (mRegisteredTimeZoneReceiver) {
-                return;
-            }
-            mRegisteredTimeZoneReceiver = true;
-            IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
-            WatchFace.this.registerReceiver(mTimeZoneReceiver, filter);
-        }
-
-        private void unregisterReceiver() {
-            if(mGoogleApiClient.isConnected()) {
-                LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-                mGoogleApiClient.disconnect();
-            }
-            if (!mRegisteredTimeZoneReceiver) {
-                return;
-            }
-            mRegisteredTimeZoneReceiver = false;
-            WatchFace.this.unregisterReceiver(mTimeZoneReceiver);
-        }
-
-        @Override
-        public void onApplyWindowInsets(WindowInsets insets) {
-            super.onApplyWindowInsets(insets);
-
-            // Load resources that have alternate values for round watches.
-            Resources resources = WatchFace.this.getResources();
-            boolean isRound = insets.isRound();
-            mXOffset = resources.getDimension(isRound
-                    ? R.dimen.digital_x_offset_round : R.dimen.digital_x_offset);
-            float textSize = resources.getDimension(isRound
-                    ? R.dimen.digital_text_size_round : R.dimen.digital_text_size);
-
-            mTextPaint.setTextSize(textSize);
         }
 
         @Override
@@ -263,11 +191,106 @@ public class WatchFace extends CanvasWatchFaceService {
         }
 
         @Override
+        public void onVisibilityChanged(boolean visible) {
+            super.onVisibilityChanged(visible);
+
+            if (visible) {
+                registerReceiver();
+            } else {
+                unregisterReceiver();
+            }
+
+            // Whether the timer should be running depends on whether we're visible (as well as
+            // whether we're in ambient mode), so we may need to start or stop the timer.
+            updateTimer();
+        }
+
+        @Override
+        public void onSurfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            super.onSurfaceChanged(holder, format, width, height);
+            mHeight = height;
+            mBottomBoundAnimator.cancel();
+            mBottomBoundAnimator.setFloatValues(height, width);
+            mBottomBoundAnimator.setInterpolator(new DecelerateInterpolator(3));
+            mBottomBoundAnimator.setDuration(0);
+            mBottomBoundAnimator.start();
+
+        }
+
+        @Override
+        public void onPeekCardPositionUpdate(Rect bounds) {
+            super.onPeekCardPositionUpdate(bounds);
+            if (!bounds.equals(mCardBounds)) {
+                mCardBounds.set(bounds);
+
+                mBottomBoundAnimator.cancel();
+                mBottomBoundAnimator.setFloatValues((Float) mBottomBoundAnimator.getAnimatedValue(), mCardBounds.top > 0 ? mCardBounds.top : mHeight);
+                mBottomBoundAnimator.setDuration(200);
+                mBottomBoundAnimator.start();
+                postInvalidate();
+            }
+        }
+
+        @Override
         public void onDraw(Canvas canvas, Rect bounds) {
+            Rect restrictedBounds = new Rect(bounds);
+            restrictedBounds.bottom = ((Float) mBottomBoundAnimator.getAnimatedValue()).intValue();
             mSky.draw(canvas, bounds);
             mCity.draw(canvas, bounds);
+            drawClock(canvas, restrictedBounds);
+
+            if (mBottomBoundAnimator.isRunning()) {
+                postInvalidate();
+            }
+        }
+
+        private void updateSun() {
+            Sun sun = World.calculateSun(mCurrentPoint, DateTime.now(mZone));
+            if(sun != mSun) {
+                Log.d(TAG, "Sun is now " + sun);
+                mSun = sun;
+                mCity.onSunUpdated(mSun);
+                mSky.onSunUpdated(mSun);
+            }
+        }
+
+        private Paint createTextPaint(int textColor) {
+            Typeface typeface = Typeface.createFromAsset(getAssets(), "BigCaslon.ttf");
+            Paint paint = new Paint();
+            paint.setColor(textColor);
+            paint.setTypeface(typeface);
+            paint.setAntiAlias(true);
+            paint.setTextSize(mResources.getDimension(R.dimen.digital_text_size));
+            return paint;
+        }
+
+        private void drawClock(Canvas canvas, Rect bounds) {
             String text = DateTime.now(mZone).toString(mFormatString);
-            canvas.drawText(text, mXOffset, mYOffset, mTextPaint);
+            float textWidth = mTextPaint.measureText(text);
+            float textY = bounds.exactCenterY() - ((mTextPaint.ascent() + mTextPaint.descent()) / 2);
+            canvas.drawText(text, bounds.centerX() - (textWidth / 2), textY, mTextPaint);
+        }
+
+        private void registerReceiver() {
+            mGoogleApiClient.connect();
+            if (mRegisteredTimeZoneReceiver) {
+                return;
+            }
+            mRegisteredTimeZoneReceiver = true;
+            IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
+            WatchFace.this.registerReceiver(mTimeZoneReceiver, filter);
+        }
+
+        private void unregisterReceiver() {
+            if(mGoogleApiClient.isConnected()) {
+                LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+                mGoogleApiClient.disconnect();
+            }
+            if (!mRegisteredTimeZoneReceiver) {
+                return;
+            }
+            mRegisteredTimeZoneReceiver = false;
+            WatchFace.this.unregisterReceiver(mTimeZoneReceiver);
         }
 
         /**
