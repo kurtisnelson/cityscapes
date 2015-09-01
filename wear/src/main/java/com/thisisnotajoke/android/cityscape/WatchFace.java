@@ -96,7 +96,6 @@ public class WatchFace extends CanvasWatchFaceService {
 
         boolean mAmbient;
         private DateTimeZone mZone;
-        private DateTime mLastLocationUpdate = DateTime.now();
 
         float mXOffset;
         float mYOffset;
@@ -109,7 +108,7 @@ public class WatchFace extends CanvasWatchFaceService {
         private FaceLayer mCity;
         private FaceLayer mSky;
         private Sun mSun;
-        private WGS84Point mCurrentPoint;
+        private WGS84Point mCurrentPoint = new WGS84Point(36.1316327,-86.7495919);
         private Resources mResources;
         private GoogleApiClient mGoogleApiClient;
 
@@ -184,11 +183,9 @@ public class WatchFace extends CanvasWatchFaceService {
             super.onVisibilityChanged(visible);
 
             if (visible) {
-                mGoogleApiClient.connect();
                 registerReceiver();
             } else {
                 unregisterReceiver();
-                mGoogleApiClient.disconnect();
             }
 
             // Whether the timer should be running depends on whether we're visible (as well as
@@ -197,6 +194,7 @@ public class WatchFace extends CanvasWatchFaceService {
         }
 
         private void registerReceiver() {
+            mGoogleApiClient.connect();
             if (mRegisteredTimeZoneReceiver) {
                 return;
             }
@@ -206,6 +204,10 @@ public class WatchFace extends CanvasWatchFaceService {
         }
 
         private void unregisterReceiver() {
+            if(mGoogleApiClient.isConnected()) {
+                LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+                mGoogleApiClient.disconnect();
+            }
             if (!mRegisteredTimeZoneReceiver) {
                 return;
             }
@@ -237,9 +239,6 @@ public class WatchFace extends CanvasWatchFaceService {
         @Override
         public void onTimeTick() {
             super.onTimeTick();
-            if(DateTime.now().isAfter(mLastLocationUpdate.plusMinutes(30))) {
-                requestLocationUpdate();
-            }
             updateSun();
             invalidate();
         }
@@ -317,8 +316,8 @@ public class WatchFace extends CanvasWatchFaceService {
                 return;
             LocationRequest locationRequest = LocationRequest.create()
                     .setPriority(LocationRequest.PRIORITY_LOW_POWER)
-                    .setInterval(TimeUnit.MINUTES.toMillis(10))
-                    .setNumUpdates(1);
+                    .setFastestInterval(TimeUnit.MINUTES.toMillis(1))
+                    .setInterval(TimeUnit.MINUTES.toMillis(10));
 
             LocationServices.FusedLocationApi
                     .requestLocationUpdates(mGoogleApiClient, locationRequest, this)
@@ -327,6 +326,8 @@ public class WatchFace extends CanvasWatchFaceService {
                         public void onResult(Status status) {
                             if(!status.isSuccess()) {
                                 Log.w(TAG, "Couldn't request location: " + status.getStatusMessage());
+                            } else {
+                                Log.d(TAG, "Location updates requested");
                             }
                         }
                     });
@@ -334,7 +335,6 @@ public class WatchFace extends CanvasWatchFaceService {
 
         @Override
         public void onLocationChanged(Location location) {
-            mLastLocationUpdate = DateTime.now(mZone);
             if(location == null) {
                 Log.w(TAG, "Got null location");
                 return;
