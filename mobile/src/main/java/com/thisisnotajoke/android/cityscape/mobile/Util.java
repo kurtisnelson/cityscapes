@@ -1,4 +1,4 @@
-package com.thisisnotajoke.android.cityscape;
+package com.thisisnotajoke.android.cityscape.mobile;
 
 import android.net.Uri;
 import android.util.Log;

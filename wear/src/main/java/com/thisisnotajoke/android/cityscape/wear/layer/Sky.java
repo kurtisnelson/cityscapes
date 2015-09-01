@@ -1,12 +1,12 @@
-package com.thisisnotajoke.android.cityscape.layer;
+package com.thisisnotajoke.android.cityscape.wear.layer;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
-import com.thisisnotajoke.android.cityscape.FaceLayer;
-import com.thisisnotajoke.android.cityscape.Sun;
-import com.thisisnotajoke.android.cityscape.SunColors;
+import com.thisisnotajoke.android.cityscape.wear.FaceLayer;
+import com.thisisnotajoke.android.cityscape.wear.Sun;
+import com.thisisnotajoke.android.cityscape.wear.SunColors;
 
 public class Sky extends FaceLayer {
     Paint mPaint;

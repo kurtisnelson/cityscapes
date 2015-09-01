@@ -1,4 +1,4 @@
-package com.thisisnotajoke.android.cityscape.layer;
+package com.thisisnotajoke.android.cityscape.wear.layer;
 
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -6,10 +6,10 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 
-import com.thisisnotajoke.android.cityscape.FaceLayer;
-import com.thisisnotajoke.android.cityscape.R;
-import com.thisisnotajoke.android.cityscape.Sun;
-import com.thisisnotajoke.android.cityscape.SunColors;
+import com.thisisnotajoke.android.cityscape.wear.FaceLayer;
+import com.thisisnotajoke.android.cityscape.wear.R;
+import com.thisisnotajoke.android.cityscape.wear.Sun;
+import com.thisisnotajoke.android.cityscape.wear.SunColors;
 
 import ch.hsr.geohash.BoundingBox;
 import ch.hsr.geohash.WGS84Point;

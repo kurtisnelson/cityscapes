@@ -1,4 +1,4 @@
-package com.thisisnotajoke.android.cityscape.controller;
+package com.thisisnotajoke.android.cityscape.wear.controller;
 
 import android.app.Activity;
 import android.content.Context;
@@ -17,8 +17,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.Wearable;
-import com.thisisnotajoke.android.cityscape.R;
-import com.thisisnotajoke.android.cityscape.Util;
+import com.thisisnotajoke.android.cityscape.wear.R;
+import com.thisisnotajoke.android.cityscape.wear.Util;
 
 public class CityConfigActivity extends Activity implements
         WearableListView.ClickListener, WearableListView.OnScrollListener {

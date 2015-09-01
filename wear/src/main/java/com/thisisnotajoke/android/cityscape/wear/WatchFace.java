@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thisisnotajoke.android.cityscape;
+package com.thisisnotajoke.android.cityscape.wear;
 
 import android.animation.ValueAnimator;
 import android.content.BroadcastReceiver;
@@ -52,8 +52,8 @@ import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
-import com.thisisnotajoke.android.cityscape.layer.Rural;
-import com.thisisnotajoke.android.cityscape.layer.Sky;
+import com.thisisnotajoke.android.cityscape.wear.layer.Rural;
+import com.thisisnotajoke.android.cityscape.wear.layer.Sky;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -370,7 +370,7 @@ public class WatchFace extends CanvasWatchFaceService {
                     .setResultCallback(new ResultCallback<Status>() {
                         @Override
                         public void onResult(Status status) {
-                            if(!status.isSuccess()) {
+                            if (!status.isSuccess()) {
                                 Log.w(TAG, "Couldn't request location: " + status.getStatusMessage());
                             } else {
                                 Log.d(TAG, "Location updates requested");

@@ -1,4 +1,4 @@
-package com.thisisnotajoke.android.cityscape;
+package com.thisisnotajoke.android.cityscape.wear;
 
 import android.content.res.Resources;
 import android.graphics.ColorFilter;

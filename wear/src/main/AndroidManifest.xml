@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.thisisnotajoke.android.cityscape" >
+    package="com.thisisnotajoke.android.cityscape.wear" >
 
     <uses-feature android:name="android.hardware.type.watch" />
 
@@ -27,6 +27,9 @@
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview_circular"
                 android:resource="@drawable/preview_city" />
+            <meta-data
+                android:name="com.google.android.wearable.watchface.companionConfigurationAction"
+                android:value="com.thisisnotajoke.android.cityscape.CONFIG_CITY" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
                 android:value="com.thisisnotajoke.android.cityscape.CONFIG_CITY" />

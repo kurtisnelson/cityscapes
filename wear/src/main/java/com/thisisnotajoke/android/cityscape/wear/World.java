@@ -1,13 +1,13 @@
-package com.thisisnotajoke.android.cityscape;
+package com.thisisnotajoke.android.cityscape.wear;
 
 import android.content.res.Resources;
 import android.util.Log;
 
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
-import com.thisisnotajoke.android.cityscape.layer.Atlanta;
-import com.thisisnotajoke.android.cityscape.layer.Nashville;
-import com.thisisnotajoke.android.cityscape.layer.Rural;
+import com.thisisnotajoke.android.cityscape.wear.layer.Atlanta;
+import com.thisisnotajoke.android.cityscape.wear.layer.Nashville;
+import com.thisisnotajoke.android.cityscape.wear.layer.Rural;
 
 import org.joda.time.DateTime;
 

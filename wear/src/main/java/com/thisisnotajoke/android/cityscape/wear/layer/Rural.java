@@ -1,9 +1,9 @@
-package com.thisisnotajoke.android.cityscape.layer;
+package com.thisisnotajoke.android.cityscape.wear.layer;
 
 import android.graphics.Canvas;
 import android.graphics.Rect;
 
-import com.thisisnotajoke.android.cityscape.FaceLayer;
+import com.thisisnotajoke.android.cityscape.wear.FaceLayer;
 
 public class Rural extends FaceLayer {
     @Override
