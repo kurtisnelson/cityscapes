@@ -171,7 +171,7 @@ public class WatchFace extends CanvasWatchFaceService {
         }
 
         private Paint createTextPaint(int textColor) {
-            Typeface typeface = Typeface.createFromAsset(getAssets(), "Hannotate.ttf");
+            Typeface typeface = Typeface.createFromAsset(getAssets(), "BigCaslon.ttf");
             Paint paint = new Paint();
             paint.setColor(textColor);
             paint.setTypeface(typeface);
