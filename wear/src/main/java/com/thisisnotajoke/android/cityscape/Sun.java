@@ -4,5 +4,5 @@ public enum Sun {
     DAY,
     NIGHT,
     SUNSET,
-    SUNRISE
+    SUNRISE;
 }

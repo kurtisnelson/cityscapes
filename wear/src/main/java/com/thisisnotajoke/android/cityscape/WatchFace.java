@@ -115,6 +115,7 @@ public class WatchFace extends CanvasWatchFaceService {
         @Override
         public void onCreate(SurfaceHolder holder) {
             super.onCreate(holder);
+            SunColors.initialize(getResources());
 
             mGoogleApiClient = new GoogleApiClient.Builder(WatchFace.this)
                     .addApi(LocationServices.API)
@@ -148,7 +149,7 @@ public class WatchFace extends CanvasWatchFaceService {
             }
 
             // Add context
-            mSky = new Sky(mResources);
+            mSky = new Sky();
             mCity = World.getCurrentCityFace(mResources, mCurrentPoint);
             updateSun();
         }

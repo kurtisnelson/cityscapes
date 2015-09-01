@@ -14,8 +14,7 @@
     <color name="atlanta_body">#8B572A</color>
     <!-- nashville -->
     <color name="nashville_body">#8C8686</color>
-    <color name="nashville_glass">#0000AA</color>
-    <color name="nashville_glass_night">#000044</color>
-    <color name="nashville_hole_ambient">#161616</color>
+    <color name="nashville_hole">#606060</color>
+    <color name="nashville_glass">#0000DD</color>
 
 </resources>
