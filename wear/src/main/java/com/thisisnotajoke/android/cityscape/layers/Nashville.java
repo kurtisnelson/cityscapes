@@ -26,7 +26,7 @@ public class Nashville extends FaceLayer {
 
     @Override
     public void draw(Canvas canvas, Rect bounds) {
-        mBuilding.setBounds(bounds.width() / 2, bounds.height() / 2, bounds.right, bounds.bottom);
+        mBuilding.setBounds(bounds.right - mBuilding.getIntrinsicWidth(), bounds.bottom - mBuilding.getIntrinsicHeight(), bounds.right, bounds.bottom);
         mBuilding.draw(canvas);
         mHole.setBounds(mBuilding.getBounds());
         mHole.draw(canvas);
