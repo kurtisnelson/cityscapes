@@ -45,8 +45,15 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataEvent;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataItem;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
-import com.thisisnotajoke.android.cityscape.layers.Sky;
+import com.thisisnotajoke.android.cityscape.layer.Rural;
+import com.thisisnotajoke.android.cityscape.layer.Sky;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -81,7 +88,7 @@ public class WatchFace extends CanvasWatchFaceService {
         return new Engine();
     }
 
-    private class Engine extends CanvasWatchFaceService.Engine implements GoogleApiClient.ConnectionCallbacks, LocationListener {
+    private class Engine extends CanvasWatchFaceService.Engine implements GoogleApiClient.ConnectionCallbacks, LocationListener, DataApi.DataListener {
 
         final Handler mUpdateTimeHandler = new EngineHandler(this);
 
@@ -100,10 +107,10 @@ public class WatchFace extends CanvasWatchFaceService {
         boolean mLowBitAmbient;
         private DateTimeZone mZone;
 
-        private FaceLayer mCity;
-        private FaceLayer mSky;
+        private FaceLayer mCity = new Rural();
+        private FaceLayer mSky = new Sky();
         private Sun mSun;
-        private WGS84Point mCurrentPoint = new WGS84Point(36.1316327,-86.7495919);
+        private WGS84Point mCurrentPoint;
         private Resources mResources;
         private GoogleApiClient mGoogleApiClient;
 
@@ -148,8 +155,6 @@ public class WatchFace extends CanvasWatchFaceService {
             }
 
             // Add context
-            mSky = new Sky();
-            mCity = World.getCurrentCityFace(mResources, mCurrentPoint);
             updateSun();
         }
 
@@ -170,6 +175,15 @@ public class WatchFace extends CanvasWatchFaceService {
             super.onTimeTick();
             updateSun();
             invalidate();
+        }
+
+        public void onCityChanged(String city) {
+            if(city != null) {
+                mCity = World.getCityFace(mResources, city);
+            } else {
+                mCity = World.getCurrentCityFace(mResources, mCurrentPoint);
+            }
+            postInvalidate();
         }
 
         @Override
@@ -284,6 +298,7 @@ public class WatchFace extends CanvasWatchFaceService {
         private void unregisterReceiver() {
             if(mGoogleApiClient.isConnected()) {
                 LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+                Wearable.DataApi.removeListener(mGoogleApiClient, this);
                 mGoogleApiClient.disconnect();
             }
             if (!mRegisteredTimeZoneReceiver) {
@@ -328,6 +343,13 @@ public class WatchFace extends CanvasWatchFaceService {
         @Override
         public void onConnected(Bundle bundle) {
             requestLocationUpdate();
+            Wearable.DataApi.addListener(mGoogleApiClient, this);
+            Util.fetchConfigDataMap(mGoogleApiClient, new Util.FetchConfigDataMapCallback() {
+                @Override
+                public void onConfigDataMapFetched(DataMap config) {
+                    onCityChanged(config.getString(Util.KEY_CITY, null));
+                }
+            });
         }
 
         @Override
@@ -355,6 +377,7 @@ public class WatchFace extends CanvasWatchFaceService {
                             }
                         }
                     });
+            onLocationChanged(LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient));
         }
 
         @Override
@@ -367,6 +390,20 @@ public class WatchFace extends CanvasWatchFaceService {
             if(mCurrentPoint == null || location.getLongitude() != mCurrentPoint.getLongitude() || location.getLatitude() != mCurrentPoint.getLatitude()) {
                 mCurrentPoint = new WGS84Point(location.getLatitude(), location.getLongitude());
                 mCity = World.getCurrentCityFace(mResources, mCurrentPoint);
+            }
+        }
+
+        @Override
+        public void onDataChanged(DataEventBuffer dataEvents) {
+            for (DataEvent event : dataEvents) {
+                if (event.getType() == DataEvent.TYPE_CHANGED) {
+                    // DataItem changed
+                    DataItem item = event.getDataItem();
+                    if (item.getUri().getPath().compareTo(Util.PATH_WITH_FEATURE) == 0) {
+                        DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
+                        onCityChanged(dataMap.getString(Util.KEY_CITY));
+                    }
+                }
             }
         }
     }

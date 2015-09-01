@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">CityScape</string>
     <string name="my_digital_name">CityScape</string>
+    <string name="city_config">Select City</string>
+    <string name="city">City</string>
 </resources>

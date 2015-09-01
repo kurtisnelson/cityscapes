@@ -16,5 +16,7 @@
     <color name="nashville_body">#8C8686</color>
     <color name="nashville_hole">#606060</color>
     <color name="nashville_glass">#0000DD</color>
+    <color name="color_item_label_color">#FFF</color>
+    <color name="color_item_circle_border_color">#FFF</color>
 
 </resources>

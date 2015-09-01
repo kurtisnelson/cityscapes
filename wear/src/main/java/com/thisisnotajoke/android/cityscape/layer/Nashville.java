@@ -1,4 +1,4 @@
-package com.thisisnotajoke.android.cityscape.layers;
+package com.thisisnotajoke.android.cityscape.layer;
 
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -22,6 +22,7 @@ public class Nashville extends FaceLayer {
     public Nashville(Resources resources) {
         mBuilding = resources.getDrawable(R.drawable.nashville, null);
         mHole = resources.getDrawable(R.drawable.nashville_hole, null);
+        mHole.setTint(SunColors.NIGHT);
     }
 
     @Override

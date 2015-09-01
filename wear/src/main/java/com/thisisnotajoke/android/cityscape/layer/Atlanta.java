@@ -1,4 +1,4 @@
-package com.thisisnotajoke.android.cityscape.layers;
+package com.thisisnotajoke.android.cityscape.layer;
 
 import android.content.res.Resources;
 import android.graphics.Canvas;

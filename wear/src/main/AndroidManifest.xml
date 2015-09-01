@@ -27,6 +27,9 @@
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview_circular"
                 android:resource="@drawable/preview_city" />
+            <meta-data
+                android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
+                android:value="com.thisisnotajoke.android.cityscape.CONFIG_CITY" />
 
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService" />
@@ -34,6 +37,18 @@
                 <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
             </intent-filter>
         </service>
+
+        <activity
+            android:name=".controller.CityConfigActivity"
+            android:label="@string/city_config">
+            <intent-filter>
+                <action android:name=
+                    "com.thisisnotajoke.android.cityscape.CONFIG_CITY" />
+                <category android:name=
+                    "com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <meta-data
             android:name="com.google.android.gms.version"

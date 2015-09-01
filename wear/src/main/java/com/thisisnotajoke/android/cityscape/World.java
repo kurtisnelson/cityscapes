@@ -5,9 +5,9 @@ import android.util.Log;
 
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
-import com.thisisnotajoke.android.cityscape.layers.Atlanta;
-import com.thisisnotajoke.android.cityscape.layers.Nashville;
-import com.thisisnotajoke.android.cityscape.layers.Rural;
+import com.thisisnotajoke.android.cityscape.layer.Atlanta;
+import com.thisisnotajoke.android.cityscape.layer.Nashville;
+import com.thisisnotajoke.android.cityscape.layer.Rural;
 
 import org.joda.time.DateTime;
 
@@ -51,6 +51,18 @@ public class World {
             return Sun.SUNRISE;
         } else {
             return Sun.SUNSET;
+        }
+    }
+
+    public static FaceLayer getCityFace(Resources resources, String city) {
+        if(city == null) {
+            return new Rural();
+        }else if(city.equalsIgnoreCase("atlanta")) {
+            return new Atlanta(resources);
+        }else if(city.equalsIgnoreCase("nashville")) {
+            return new Nashville(resources);
+        } else {
+            throw new RuntimeException("Invalid city: " + city);
         }
     }
 }
