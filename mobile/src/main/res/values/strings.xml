@@ -1,6 +1,0 @@
-<resources>
-    <string name="app_name">CityScape</string>
-
-    <string name="action_settings">Settings</string>
-    <string name="selected_city">Selected City:</string>
-</resources>
