@@ -17,8 +17,8 @@ public class Nashville extends FaceLayer {
 
     public Nashville(Resources resources) {
         super(resources);
-        mBuilding = resources.getDrawable(R.drawable.nashville, null);
-        mHole = resources.getDrawable(R.drawable.nashville_hole, null);
+        mBuilding = resources.getDrawable(R.drawable.nashville);
+        mHole = resources.getDrawable(R.drawable.nashville_hole);
         mHole.setTint(SunColors.NIGHT);
     }
 
