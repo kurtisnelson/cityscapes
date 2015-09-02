@@ -16,7 +16,7 @@ import com.google.android.gms.wearable.Wearable;
 public class Util {
     public static final String KEY_CITY = "CITY";
     public static final String PATH_WITH_FEATURE = "/watch_face_config";
-    private static final String TAG = "Util";
+    private static final String TAG = "DataSyncUtil";
 
     public interface FetchConfigDataMapCallback {
         void onConfigDataMapFetched(DataMap config);

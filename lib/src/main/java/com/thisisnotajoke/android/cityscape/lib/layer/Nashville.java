@@ -1,30 +1,33 @@
-package com.thisisnotajoke.android.cityscape.wear.layer;
+package com.thisisnotajoke.android.cityscape.lib.layer;
 
 import android.content.res.Resources;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 
-import com.thisisnotajoke.android.cityscape.wear.FaceLayer;
-import com.thisisnotajoke.android.cityscape.wear.R;
-import com.thisisnotajoke.android.cityscape.wear.Sun;
-import com.thisisnotajoke.android.cityscape.wear.SunColors;
+import com.thisisnotajoke.android.cityscape.lib.FaceLayer;
+import com.thisisnotajoke.android.cityscape.lib.R;
+import com.thisisnotajoke.android.cityscape.lib.Sun;
+import com.thisisnotajoke.android.cityscape.lib.SunColors;
 
-import ch.hsr.geohash.BoundingBox;
-import ch.hsr.geohash.WGS84Point;
-
-public class Atlanta extends FaceLayer {
-    private static final BoundingBox BOUNDING_BOX = new BoundingBox(34.080341, 33.411764, -84.699899, -83.997117);
+public class Nashville extends FaceLayer {
     private final Drawable mBuilding;
+    private final Drawable mHole;
 
-    public Atlanta(Resources resources) {
-        mBuilding = resources.getDrawable(R.drawable.atlanta, null);
+    public Nashville(Resources resources) {
+        super(resources);
+        mBuilding = resources.getDrawable(R.drawable.nashville, null);
+        mHole = resources.getDrawable(R.drawable.nashville_hole, null);
+        mHole.setTint(SunColors.NIGHT);
     }
 
     @Override
     public void draw(Canvas canvas, Rect bounds) {
         mBuilding.setBounds(bounds.right - mBuilding.getIntrinsicWidth(), bounds.bottom - mBuilding.getIntrinsicHeight(), bounds.right, bounds.bottom);
         mBuilding.draw(canvas);
+        mHole.setBounds(mBuilding.getBounds());
+        mHole.draw(canvas);
     }
 
     @Override
@@ -32,6 +35,7 @@ public class Atlanta extends FaceLayer {
         super.onAmbientModeChanged(inAmbientMode);
         if(mAmbient) {
             mBuilding.setColorFilter(SunColors.AMBIENT_FILTER);
+            mHole.setTint(Color.BLACK);
         } else {
             onSunUpdated(mSun);
         }
@@ -42,20 +46,20 @@ public class Atlanta extends FaceLayer {
         super.onSunUpdated(sun);
         switch (sun) {
             case SUNSET:
+                mHole.setTint(SunColors.SUNSET);
                 mBuilding.setColorFilter(SunColors.CHANGE_FILTER);
                 break;
             case SUNRISE:
+                mHole.setTint(SunColors.SUNRISE);
                 mBuilding.setColorFilter(SunColors.CHANGE_FILTER);
                 break;
             case NIGHT:
+                mHole.setTint(SunColors.NIGHT);
                 mBuilding.setColorFilter(SunColors.NIGHT_FILTER);
                 break;
             case DAY:
+                mHole.setTint(SunColors.DAY);
                 mBuilding.clearColorFilter();
         }
-    }
-
-    public static boolean contains(WGS84Point point) {
-        return BOUNDING_BOX.contains(point);
     }
 }

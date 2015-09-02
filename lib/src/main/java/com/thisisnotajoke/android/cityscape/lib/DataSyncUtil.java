@@ -1,4 +1,4 @@
-package com.thisisnotajoke.android.cityscape.wear;
+package com.thisisnotajoke.android.cityscape.lib;
 
 import android.net.Uri;
 import android.util.Log;
@@ -13,10 +13,10 @@ import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.Wearable;
 
-public class Util {
+public class DataSyncUtil {
     public static final String KEY_CITY = "CITY";
     public static final String PATH_WITH_FEATURE = "/watch_face_config";
-    private static final String TAG = "Util";
+    private static final String TAG = "DataSyncUtil";
 
     public interface FetchConfigDataMapCallback {
         void onConfigDataMapFetched(DataMap config);
@@ -31,7 +31,7 @@ public class Util {
                         String localNode = getLocalNodeResult.getNode().getId();
                         Uri uri = new Uri.Builder()
                                 .scheme("wear")
-                                .path(Util.PATH_WITH_FEATURE)
+                                .path(DataSyncUtil.PATH_WITH_FEATURE)
                                 .authority(localNode)
                                 .build();
                         Wearable.DataApi.getDataItem(client, uri)
@@ -44,14 +44,14 @@ public class Util {
     public static void overwriteKeysInConfigDataMap(final GoogleApiClient googleApiClient,
                                                     final DataMap configKeysToOverwrite) {
 
-        Util.fetchConfigDataMap(googleApiClient,
+        DataSyncUtil.fetchConfigDataMap(googleApiClient,
                 new FetchConfigDataMapCallback() {
                     @Override
                     public void onConfigDataMapFetched(DataMap currentConfig) {
                         DataMap overwrittenConfig = new DataMap();
                         overwrittenConfig.putAll(currentConfig);
                         overwrittenConfig.putAll(configKeysToOverwrite);
-                        Util.putConfigDataItem(googleApiClient, overwrittenConfig);
+                        DataSyncUtil.putConfigDataItem(googleApiClient, overwrittenConfig);
                     }
                 }
         );

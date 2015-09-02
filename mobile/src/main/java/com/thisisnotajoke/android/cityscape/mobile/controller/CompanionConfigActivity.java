@@ -10,19 +10,23 @@ import android.widget.Spinner;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataMap;
-import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.Wearable;
+import com.thisisnotajoke.android.cityscape.lib.World;
+import com.thisisnotajoke.android.cityscape.lib.model.City;
 import com.thisisnotajoke.android.cityscape.mobile.R;
 import com.thisisnotajoke.android.cityscape.mobile.Util;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 public class CompanionConfigActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, GoogleApiClient.ConnectionCallbacks {
     private Spinner mCitySpinner;
     private static String TAG = "CompanionConfigActivity";
     private GoogleApiClient mGoogleApiClient;
+    private ArrayAdapter<City> mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,11 +34,9 @@ public class CompanionConfigActivity extends AppCompatActivity implements Adapte
         setContentView(R.layout.activity_config);
 
         mCitySpinner = (Spinner) findViewById(R.id.activity_config_city_spinner);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.city_array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mCitySpinner.setAdapter(adapter);
-        mCitySpinner.setOnItemSelectedListener(this);
+        List<City> cities = new ArrayList<>(Arrays.asList(World.CITIES));
+        cities.add(0, new City(null, "Automatic"));
+        mAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, cities);
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)  // used for data layer API
@@ -51,11 +53,11 @@ public class CompanionConfigActivity extends AppCompatActivity implements Adapte
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        String city = (String) adapterView.getItemAtPosition(i);
-        if(city.equalsIgnoreCase("automatic"))
-            city = null;
+        UUID cityId = ((City) adapterView.getItemAtPosition(i)).getID();
+        String id = cityId != null ? cityId.toString() : null;
+        Log.d(TAG, "Setting city ID to " + id);
         DataMap configKeysToOverwrite = new DataMap();
-        configKeysToOverwrite.putString(Util.KEY_CITY, city);
+        configKeysToOverwrite.putString(Util.KEY_CITY, id);
         Util.overwriteKeysInConfigDataMap(mGoogleApiClient, configKeysToOverwrite);
     }
 
@@ -66,7 +68,16 @@ public class CompanionConfigActivity extends AppCompatActivity implements Adapte
 
     @Override
     public void onConnected(Bundle bundle) {
-
+        Util.fetchConfigDataMap(mGoogleApiClient, new Util.FetchConfigDataMapCallback() {
+            @Override
+            public void onConfigDataMapFetched(DataMap config) {
+                String selectedCity = config.getString(Util.KEY_CITY, null);
+                City city = World.getCity(selectedCity);
+                mCitySpinner.setAdapter(mAdapter);
+                mCitySpinner.setSelection(mAdapter.getPosition(city), false);
+                mCitySpinner.setOnItemSelectedListener(CompanionConfigActivity.this);
+            }
+        });
     }
 
     @Override

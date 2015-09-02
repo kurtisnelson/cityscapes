@@ -1,17 +1,19 @@
-package com.thisisnotajoke.android.cityscape.wear.layer;
+package com.thisisnotajoke.android.cityscape.lib.layer;
 
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
-import com.thisisnotajoke.android.cityscape.wear.FaceLayer;
-import com.thisisnotajoke.android.cityscape.wear.Sun;
-import com.thisisnotajoke.android.cityscape.wear.SunColors;
+import com.thisisnotajoke.android.cityscape.lib.FaceLayer;
+import com.thisisnotajoke.android.cityscape.lib.Sun;
+import com.thisisnotajoke.android.cityscape.lib.SunColors;
 
 public class Sky extends FaceLayer {
     Paint mPaint;
 
-    public Sky() {
+    public Sky(Resources res) {
+        super(res);
         mPaint = new Paint();
         updatePaint();
     }

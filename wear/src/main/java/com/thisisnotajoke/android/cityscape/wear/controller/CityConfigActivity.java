@@ -17,8 +17,15 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.Wearable;
+import com.thisisnotajoke.android.cityscape.lib.DataSyncUtil;
+import com.thisisnotajoke.android.cityscape.lib.World;
+import com.thisisnotajoke.android.cityscape.lib.model.City;
 import com.thisisnotajoke.android.cityscape.wear.R;
-import com.thisisnotajoke.android.cityscape.wear.Util;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 public class CityConfigActivity extends Activity implements
         WearableListView.ClickListener, WearableListView.OnScrollListener {
@@ -54,8 +61,7 @@ public class CityConfigActivity extends Activity implements
         listView.setClickListener(this);
         listView.addOnScrollListener(this);
 
-        String[] cities = getResources().getStringArray(R.array.city_array);
-        listView.setAdapter(new CityListAdapter(cities));
+        listView.setAdapter(new CityListAdapter());
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
@@ -102,7 +108,12 @@ public class CityConfigActivity extends Activity implements
     @Override
     public void onClick(WearableListView.ViewHolder viewHolder) {
         CityItemViewHolder colorItemViewHolder = (CityItemViewHolder) viewHolder;
-        updateConfigDataItem(colorItemViewHolder.mCityItem.getCity());
+        UUID id = colorItemViewHolder.mCityItem.mId;
+        if(id == null) {
+            updateConfigDataItem(null);
+        } else {
+            updateConfigDataItem(id.toString());
+        }
         finish();
     }
 
@@ -132,17 +143,18 @@ public class CityConfigActivity extends Activity implements
 
     }
 
-    private void updateConfigDataItem(final String city) {
+    private void updateConfigDataItem(final String cityId) {
         DataMap configKeysToOverwrite = new DataMap();
-        configKeysToOverwrite.putString(Util.KEY_CITY, city);
-        Util.overwriteKeysInConfigDataMap(mGoogleApiClient, configKeysToOverwrite);
+        configKeysToOverwrite.putString(DataSyncUtil.KEY_CITY, cityId);
+        DataSyncUtil.overwriteKeysInConfigDataMap(mGoogleApiClient, configKeysToOverwrite);
     }
 
     private class CityListAdapter extends WearableListView.Adapter {
-        private final String[] mCities;
+        private final List<City> mCities;
 
-        public CityListAdapter(String[] cities) {
-            mCities = cities;
+        public CityListAdapter() {
+            mCities = new ArrayList<>(Arrays.asList(World.CITIES));
+            mCities.add(0, new City(null, "Automatic"));
         }
 
         @Override
@@ -153,39 +165,22 @@ public class CityConfigActivity extends Activity implements
         @Override
         public void onBindViewHolder(WearableListView.ViewHolder holder, int position) {
             CityItemViewHolder colorItemViewHolder = (CityItemViewHolder) holder;
-            String cityName = mCities[position];
-            colorItemViewHolder.mCityItem.setCity(cityName);
-
-            RecyclerView.LayoutParams layoutParams =
-                    new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT);
-            int colorPickerItemMargin = (int) getResources().getDimension(R.dimen.digital_config_color_picker_item_margin);
-            // Add margins to first and last item to make it possible for user to tap on them.
-            if (position == 0) {
-                layoutParams.setMargins(0, colorPickerItemMargin, 0, 0);
-            } else if (position == mCities.length - 1) {
-                layoutParams.setMargins(0, 0, 0, colorPickerItemMargin);
-            } else {
-                layoutParams.setMargins(0, 0, 0, 0);
-            }
-            colorItemViewHolder.itemView.setLayoutParams(layoutParams);
+            colorItemViewHolder.bind(mCities.get(position));
         }
 
         @Override
         public int getItemCount() {
-            return mCities.length;
+            return mCities.size();
         }
     }
 
     private static class CityItem extends LinearLayout implements WearableListView.OnCenterProximityListener {
-
         private final TextView mLabel;
-        private String mCity;
+        public UUID mId;
 
         public CityItem(Context context) {
             super(context);
             View.inflate(context, R.layout.city_picker_item, this);
-
             mLabel = (TextView) findViewById(R.id.label);
         }
 
@@ -198,17 +193,6 @@ public class CityConfigActivity extends Activity implements
         public void onNonCenterPosition(boolean b) {
 
         }
-
-        public void setCity(String cityName) {
-            mCity = cityName;
-            if(mCity.equalsIgnoreCase("automatic"))
-                mCity = null;
-            mLabel.setText(cityName);
-        }
-
-        public String getCity() {
-            return mCity;
-        }
     }
 
     private static class CityItemViewHolder extends WearableListView.ViewHolder {
@@ -217,6 +201,11 @@ public class CityConfigActivity extends Activity implements
         public CityItemViewHolder(CityItem cityItem) {
             super(cityItem);
             mCityItem = cityItem;
+        }
+
+        public void bind(City city) {
+            mCityItem.mLabel.setText(city.getName());
+            mCityItem.mId = city.getID();
         }
     }
 

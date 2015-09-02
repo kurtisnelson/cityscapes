@@ -1,4 +1,4 @@
-package com.thisisnotajoke.android.cityscape.wear;
+package com.thisisnotajoke.android.cityscape.lib;
 
 public enum Sun {
     DAY,

@@ -1,5 +1,6 @@
-package com.thisisnotajoke.android.cityscape.wear;
+package com.thisisnotajoke.android.cityscape.lib;
 
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 
@@ -7,6 +8,13 @@ public abstract class FaceLayer {
     private static final String TAG = "FaceLayer";
     protected Sun mSun = Sun.DAY;
     protected boolean mAmbient = false;
+
+    public FaceLayer(Resources resources) {
+
+    }
+
+    protected FaceLayer() {
+    }
 
     public abstract void draw(Canvas canvas, Rect bounds);
 

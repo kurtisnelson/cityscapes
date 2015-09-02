@@ -1,35 +1,39 @@
-package com.thisisnotajoke.android.cityscape.wear;
+package com.thisisnotajoke.android.cityscape.lib;
 
 import android.content.res.Resources;
 import android.util.Log;
 
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
-import com.thisisnotajoke.android.cityscape.wear.layer.Atlanta;
-import com.thisisnotajoke.android.cityscape.wear.layer.Nashville;
-import com.thisisnotajoke.android.cityscape.wear.layer.Rural;
+import com.thisisnotajoke.android.cityscape.lib.layer.Atlanta;
+import com.thisisnotajoke.android.cityscape.lib.layer.Nashville;
+import com.thisisnotajoke.android.cityscape.lib.layer.Rural;
+import com.thisisnotajoke.android.cityscape.lib.model.City;
 
 import org.joda.time.DateTime;
 
 import java.util.GregorianCalendar;
+import java.util.UUID;
 
+import ch.hsr.geohash.BoundingBox;
 import ch.hsr.geohash.WGS84Point;
 
 public class World {
     private static final String TAG = "World";
 
+    public static final City[] CITIES = {
+            new City("df4e4cde-aaf1-496e-9386-298dbe2c84f2", "Atlanta", Atlanta.class, new BoundingBox(34.080341, 33.411764, -84.699899, -83.997117)),
+            new City("1c17bfb7-f9d9-4427-86ae-4a56bd26b902", "Nashville", Nashville.class, new BoundingBox(36.262914, 35.888864, -86.975785, -86.405870))
+    };
+
     public static FaceLayer getCurrentCityFace(Resources resources, WGS84Point location) {
         if(location == null) {
             return new Rural();
         }
-        if(Atlanta.contains(location)) {
-            Log.d(TAG, "Detected Atlanta");
-            return new Atlanta(resources);
-        } else if(Nashville.contains(location)) {
-            Log.d(TAG, "Detected Nashville");
-            return new Nashville(resources);
+        for(City city : CITIES) {
+            if(city.contains(location))
+                return city.getFace(resources);
         }
-        Log.w(TAG, "We don't know that part of the world yet, defaulting to rural");
         return new Rural();
     }
 
@@ -54,15 +58,25 @@ public class World {
         }
     }
 
-    public static FaceLayer getCityFace(Resources resources, String city) {
-        if(city == null) {
+    public static FaceLayer getCityFace(Resources resources, UUID id) {
+        if(id == null) {
             return new Rural();
-        }else if(city.equalsIgnoreCase("atlanta")) {
-            return new Atlanta(resources);
-        }else if(city.equalsIgnoreCase("nashville")) {
-            return new Nashville(resources);
-        } else {
-            throw new RuntimeException("Invalid city: " + city);
         }
+        for(City city : CITIES) {
+            if(city.getID().equals(id))
+                return city.getFace(resources);
+        }
+        return new Rural();
+    }
+
+    public static City getCity(String id) {
+        if(id == null)
+            return null;
+        for(City c : CITIES) {
+            if(UUID.fromString(id).equals(c.getID())) {
+                return c;
+            }
+        }
+        return null;
     }
 }

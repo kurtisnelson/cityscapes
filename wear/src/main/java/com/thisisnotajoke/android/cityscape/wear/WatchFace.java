@@ -52,14 +52,20 @@ import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
-import com.thisisnotajoke.android.cityscape.wear.layer.Rural;
-import com.thisisnotajoke.android.cityscape.wear.layer.Sky;
+import com.thisisnotajoke.android.cityscape.lib.DataSyncUtil;
+import com.thisisnotajoke.android.cityscape.lib.FaceLayer;
+import com.thisisnotajoke.android.cityscape.lib.Sun;
+import com.thisisnotajoke.android.cityscape.lib.SunColors;
+import com.thisisnotajoke.android.cityscape.lib.World;
+import com.thisisnotajoke.android.cityscape.lib.layer.Rural;
+import com.thisisnotajoke.android.cityscape.lib.layer.Sky;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import java.lang.ref.WeakReference;
 import java.util.TimeZone;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import ch.hsr.geohash.WGS84Point;
@@ -107,12 +113,13 @@ public class WatchFace extends CanvasWatchFaceService {
         boolean mLowBitAmbient;
         private DateTimeZone mZone;
 
-        private FaceLayer mCity = new Rural();
-        private FaceLayer mSky = new Sky();
         private Sun mSun;
         private WGS84Point mCurrentPoint;
         private Resources mResources;
         private GoogleApiClient mGoogleApiClient;
+
+        private FaceLayer mCity = new Rural();
+        private FaceLayer mSky = new Sky(mResources);
 
         private ValueAnimator mBottomBoundAnimator = new ValueAnimator();
         private Rect mCardBounds = new Rect();
@@ -177,7 +184,7 @@ public class WatchFace extends CanvasWatchFaceService {
             invalidate();
         }
 
-        public void onCityChanged(String city) {
+        public void onCityChanged(UUID city) {
             if(city != null) {
                 mCity = World.getCityFace(mResources, city);
             } else {
@@ -344,10 +351,16 @@ public class WatchFace extends CanvasWatchFaceService {
         public void onConnected(Bundle bundle) {
             requestLocationUpdate();
             Wearable.DataApi.addListener(mGoogleApiClient, this);
-            Util.fetchConfigDataMap(mGoogleApiClient, new Util.FetchConfigDataMapCallback() {
+            DataSyncUtil.fetchConfigDataMap(mGoogleApiClient, new DataSyncUtil.FetchConfigDataMapCallback() {
                 @Override
                 public void onConfigDataMapFetched(DataMap config) {
-                    onCityChanged(config.getString(Util.KEY_CITY, null));
+                    UUID id;
+                    try {
+                        id = UUID.fromString(config.getString(DataSyncUtil.KEY_CITY));
+                    } catch (NullPointerException e) {
+                        id = null;
+                    }
+                    onCityChanged(id);
                 }
             });
         }
@@ -399,9 +412,10 @@ public class WatchFace extends CanvasWatchFaceService {
                 if (event.getType() == DataEvent.TYPE_CHANGED) {
                     // DataItem changed
                     DataItem item = event.getDataItem();
-                    if (item.getUri().getPath().compareTo(Util.PATH_WITH_FEATURE) == 0) {
+                    if (item.getUri().getPath().compareTo(DataSyncUtil.PATH_WITH_FEATURE) == 0) {
                         DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
-                        onCityChanged(dataMap.getString(Util.KEY_CITY));
+                        String cityId = dataMap.getString(DataSyncUtil.KEY_CITY);
+                        onCityChanged(cityId != null ? UUID.fromString(cityId) : null);
                     }
                 }
             }
