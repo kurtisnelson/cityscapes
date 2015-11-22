@@ -1,0 +1,7 @@
+<resources>
+    <string name="title_activity_permission">PermissionActivity</string>
+    <string name="hello_round">Hello Round World!</string>
+    <string name="hello_square">Hello Square World!</string>
+    <string name="requires_location">CityScape is useless if we can\'t figure out what city you are in.</string>
+    <string name="fix">Fix</string>
+</resources>

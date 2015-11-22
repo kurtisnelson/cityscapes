@@ -16,11 +16,13 @@
 
 package com.thisisnotajoke.android.cityscape.wear;
 
+import android.Manifest;
 import android.animation.ValueAnimator;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -30,6 +32,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.ContextCompat;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.DateFormat;
@@ -59,6 +62,7 @@ import com.thisisnotajoke.android.cityscape.lib.SunColors;
 import com.thisisnotajoke.android.cityscape.lib.World;
 import com.thisisnotajoke.android.cityscape.lib.layer.Rural;
 import com.thisisnotajoke.android.cityscape.lib.layer.Sky;
+import com.thisisnotajoke.android.cityscape.wear.controller.PermissionActivity;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -373,10 +377,15 @@ public class WatchFace extends CanvasWatchFaceService {
         private void requestLocationUpdate() {
             if(!mGoogleApiClient.isConnected())
                 return;
+            int permissionCheck = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION);
+            if(permissionCheck == PackageManager.PERMISSION_DENIED) {
+                startActivity(PermissionActivity.newIntent(getApplicationContext()));
+                return;
+            }
             LocationRequest locationRequest = LocationRequest.create()
                     .setPriority(LocationRequest.PRIORITY_LOW_POWER)
-                    .setFastestInterval(TimeUnit.MINUTES.toMillis(1))
-                    .setInterval(TimeUnit.MINUTES.toMillis(10));
+                    .setFastestInterval(TimeUnit.SECONDS.toMillis(30))
+                    .setInterval(TimeUnit.MINUTES.toMillis(5));
 
             LocationServices.FusedLocationApi
                     .requestLocationUpdates(mGoogleApiClient, locationRequest, this)
