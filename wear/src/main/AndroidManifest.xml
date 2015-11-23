@@ -57,8 +57,7 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name=".controller.PermissionActivity"
-            android:label="@string/title_activity_permission"></activity>
+            android:name=".controller.PermissionActivity"></activity>
     </application>
 
 </manifest>

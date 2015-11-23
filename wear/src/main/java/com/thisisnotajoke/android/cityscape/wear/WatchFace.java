@@ -280,7 +280,7 @@ public class WatchFace extends CanvasWatchFaceService {
         }
 
         private Paint createTextPaint(int textColor) {
-            Typeface typeface = Typeface.createFromAsset(getAssets(), "BigCaslon.ttf");
+            Typeface typeface = Typeface.create("sans-serif-light", Typeface.NORMAL);
             Paint paint = new Paint();
             paint.setColor(textColor);
             paint.setTypeface(typeface);
