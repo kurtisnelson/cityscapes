@@ -67,7 +67,6 @@ import com.thisisnotajoke.android.cityscape.wear.controller.PermissionActivity;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
-import java.io.DataInputStream;
 import java.lang.ref.WeakReference;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -123,7 +122,7 @@ public class WatchFace extends CanvasWatchFaceService {
         private Resources mResources;
         private GoogleApiClient mGoogleApiClient;
 
-        private FaceLayer mCity = new Rural();
+        private FaceLayer mCity;
         private FaceLayer mSky = new Sky(mResources);
 
         private ValueAnimator mBottomBoundAnimator = new ValueAnimator();
@@ -133,6 +132,7 @@ public class WatchFace extends CanvasWatchFaceService {
         @Override
         public void onCreate(SurfaceHolder holder) {
             super.onCreate(holder);
+            mCity = new Rural(getResources());
             SunColors.initialize(getResources());
 
             mGoogleApiClient = new GoogleApiClient.Builder(WatchFace.this)

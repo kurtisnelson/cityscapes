@@ -29,17 +29,6 @@ public class World {
             new City("af609807-30be-41b5-868a-6d265ae06dfb", "Bay Area", BayArea.class, new BoundingBox(38.145365,37.077101, -123.083734, -121.070489))
     };
 
-    public static FaceLayer getCurrentCityFace(Resources resources, WGS84Point location) {
-        if(location == null) {
-            return new Rural();
-        }
-        for(City city : CITIES) {
-            if(city.contains(location))
-                return city.getFace(resources);
-        }
-        return new Rural();
-    }
-
     public static Sun calculateSun(WGS84Point point, DateTime time) {
         if(point == null)
             return Sun.NIGHT;
@@ -63,13 +52,24 @@ public class World {
 
     public static FaceLayer getCityFace(Resources resources, UUID id) {
         if(id == null) {
-            return new Rural();
+            return new Rural(resources);
         }
         for(City city : CITIES) {
             if(city.getID().equals(id))
                 return city.getFace(resources);
         }
-        return new Rural();
+        return new Rural(resources);
+    }
+
+    public static FaceLayer getCurrentCityFace(Resources resources, WGS84Point location) {
+        if(location == null) {
+            return new Rural(resources);
+        }
+        for(City city : CITIES) {
+            if(city.contains(location))
+                return city.getFace(resources);
+        }
+        return new Rural(resources);
     }
 
     public static City getCity(String id) {

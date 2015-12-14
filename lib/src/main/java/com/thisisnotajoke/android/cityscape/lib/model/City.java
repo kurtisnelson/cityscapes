@@ -51,7 +51,7 @@ public class City {
             return mFace.getConstructor(Resources.class).newInstance(res);
         } catch (Exception e) {
             Log.e(TAG, "Could not build watch face", e);
-            return new Rural();
+            return new Rural(res);
         }
     }
 

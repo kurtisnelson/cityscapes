@@ -1,27 +1,11 @@
 package com.thisisnotajoke.android.cityscape.lib.layer;
 
 import android.content.res.Resources;
-import android.graphics.Canvas;
-import android.graphics.Rect;
 
-import com.thisisnotajoke.android.cityscape.lib.FaceLayer;
+import com.thisisnotajoke.android.cityscape.lib.R;
 
-public class Rural extends FaceLayer {
+public class Rural extends SimpleCity {
     public Rural(Resources resources) {
-        super(resources);
-    }
-
-    public Rural() {
-
-    }
-
-    @Override
-    public void draw(Canvas canvas, Rect bounds) {
-
-    }
-
-    @Override
-    public void onAmbientModeChanged(boolean inAmbientMode) {
-
+        super(resources.getDrawable(R.drawable.rural), resources);
     }
 }
