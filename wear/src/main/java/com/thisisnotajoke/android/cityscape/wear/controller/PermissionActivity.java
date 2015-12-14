@@ -20,23 +20,23 @@ import com.thisisnotajoke.android.cityscape.wear.R;
 public class PermissionActivity extends Activity {
 
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 0;
+    private static final String TAG = "PermissionActivity";
     private GoogleApiClient mGoogleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                request();
-            } else {
-                finish();
-            }
+            Log.d(TAG, "We do not have coarse location permissions");
+            request();
         } else {
+            Log.d(TAG, "We already have permission, finishing");
             finish();
         }
     }
 
     private void request() {
+        Log.d(TAG, "Requesting permissions");
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSIONS_REQUEST_LOCATION);
     }
 

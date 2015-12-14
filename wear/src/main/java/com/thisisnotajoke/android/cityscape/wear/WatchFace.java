@@ -358,28 +358,34 @@ public class WatchFace extends CanvasWatchFaceService {
             DataSyncUtil.fetchConfigDataMap(mGoogleApiClient, new DataSyncUtil.FetchConfigDataMapCallback() {
                 @Override
                 public void onConfigDataMapFetched(DataMap config) {
-                    switch (config.getInt(DataSyncUtil.KEY_MODE, DataSyncUtil.MODE_GPS)) {
-                        case DataSyncUtil.MODE_GPS:
-                            requestLocationUpdate();
-                            break;
-                        case DataSyncUtil.MODE_MANUAL:
-                            UUID id;
-                            try {
-                                id = UUID.fromString(config.getString(DataSyncUtil.KEY_CITY));
-                            } catch (NullPointerException e) {
-                                id = null;
-                            }
-                            onCityChanged(id);
-                            break;
-                        case DataSyncUtil.MODE_RANDOM:
-                            randomCity();
-                            break;
-                    }
+                    onConfigChanged(config.getInt(DataSyncUtil.KEY_MODE, DataSyncUtil.MODE_GPS), config.getString(DataSyncUtil.KEY_CITY));
                 }
             });
         }
 
+        private void onConfigChanged(int mode, String cityId) {
+            switch (mode) {
+                case DataSyncUtil.MODE_GPS:
+                    mCurrentPoint = null;
+                    requestLocationUpdate();
+                    break;
+                case DataSyncUtil.MODE_MANUAL:
+                    UUID id;
+                    try {
+                        id = UUID.fromString(cityId);
+                    } catch (NullPointerException e) {
+                        id = null;
+                    }
+                    onCityChanged(id);
+                    break;
+                case DataSyncUtil.MODE_RANDOM:
+                    randomCity();
+                    break;
+            }
+        }
+
         private void randomCity() {
+            Log.d(TAG, "Picking random city face");
             mCity = World.getRandomCityFace(getResources());
             postInvalidate();
         }
@@ -393,7 +399,8 @@ public class WatchFace extends CanvasWatchFaceService {
             if(!mGoogleApiClient.isConnected())
                 return;
             int permissionCheck = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION);
-            if(permissionCheck == PackageManager.PERMISSION_DENIED) {
+            if(permissionCheck != PackageManager.PERMISSION_GRANTED) {
+                Log.i(TAG, "Missing location permissions");
                 startActivity(PermissionActivity.newIntent(getApplicationContext()));
                 return;
             }
@@ -409,12 +416,12 @@ public class WatchFace extends CanvasWatchFaceService {
                         public void onResult(Status status) {
                             if (!status.isSuccess()) {
                                 Log.w(TAG, "Couldn't request location: " + status.getStatusMessage());
+                                onLocationChanged(LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient));
                             } else {
                                 Log.d(TAG, "Location updates requested");
                             }
                         }
                     });
-            onLocationChanged(LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient));
         }
 
         @Override
@@ -423,10 +430,12 @@ public class WatchFace extends CanvasWatchFaceService {
                 Log.w(TAG, "Got null location");
                 return;
             }
-            Log.d(TAG, "Location changed");
+            Log.d(TAG, "recieved " + location);
             if(mCurrentPoint == null || location.getLongitude() != mCurrentPoint.getLongitude() || location.getLatitude() != mCurrentPoint.getLatitude()) {
+                Log.d(TAG, "Selecting face based on location");
                 mCurrentPoint = new WGS84Point(location.getLatitude(), location.getLongitude());
                 mCity = World.getCurrentCityFace(mResources, mCurrentPoint);
+                postInvalidate();
             }
         }
 
@@ -439,7 +448,8 @@ public class WatchFace extends CanvasWatchFaceService {
                     if (item.getUri().getPath().compareTo(DataSyncUtil.PATH_WITH_FEATURE) == 0) {
                         DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
                         String cityId = dataMap.getString(DataSyncUtil.KEY_CITY);
-                        onCityChanged(cityId != null ? UUID.fromString(cityId) : null);
+                        int mode = dataMap.getInt(DataSyncUtil.KEY_MODE);
+                        onConfigChanged(mode, cityId);
                     }
                 }
             }

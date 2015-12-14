@@ -8,9 +8,6 @@ public class ModeManager {
     private static void updateMode(GoogleApiClient googleApiClient, final int mode) {
         DataMap configKeysToOverwrite = new DataMap();
         configKeysToOverwrite.putInt(DataSyncUtil.KEY_MODE, mode);
-        if(mode != DataSyncUtil.MODE_MANUAL) {
-            configKeysToOverwrite.putString(DataSyncUtil.KEY_CITY, null);
-        }
         DataSyncUtil.overwriteKeysInConfigDataMap(googleApiClient, configKeysToOverwrite);
     }
 

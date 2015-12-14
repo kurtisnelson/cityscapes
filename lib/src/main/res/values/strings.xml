@@ -7,4 +7,5 @@
     <string name="selected_city">Selected City:</string>
     <string name="mode_manual">Manual</string>
     <string name="mode_random">Random</string>
+    <string name="mode_location">GPS (recommended)</string>
 </resources>

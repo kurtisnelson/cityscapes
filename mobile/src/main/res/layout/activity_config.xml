@@ -8,13 +8,36 @@
     tools:context="com.thisisnotajoke.android.cityscape.mobile.CompanionConfigActivity">
 
     <TextView
-        android:id="@+id/activity_config_city_label"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/selected_city"
-        android:labelFor="@+id/activity_config_city_spinner" />
+        android:textSize="24sp"
+        android:text="@string/mode_config" />
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <RadioButton
+            android:id="@+id/activity_config_gps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onRadioButtonClicked"
+            android:text="@string/mode_location" />
+        <RadioButton
+            android:id="@+id/activity_config_random"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onRadioButtonClicked"
+            android:text="@string/mode_random"/>
+        <RadioButton
+            android:id="@+id/activity_config_manual"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onRadioButtonClicked"
+            android:text="@string/mode_manual"/>
+    </RadioGroup>
+
     <Spinner
         android:id="@+id/activity_config_city_spinner"
+        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 

@@ -16,7 +16,7 @@
             android:name=".controller.CompanionConfigActivity"
             android:label="@string/app_name" >
             <intent-filter>
-                <action android:name="com.thisisnotajoke.android.cityscape.CONFIG_CITY" />
+                <action android:name="com.thisisnotajoke.android.cityscape.CONFIG_MODE" />
 
                 <category android:name="com.google.android.wearable.watchface.category.COMPANION_CONFIGURATION" />
                 <category android:name="android.intent.category.DEFAULT" />

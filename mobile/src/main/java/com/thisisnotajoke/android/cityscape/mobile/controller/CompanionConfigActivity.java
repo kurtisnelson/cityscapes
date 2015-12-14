@@ -6,16 +6,18 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.RadioButton;
 import android.widget.Spinner;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.Wearable;
+import com.thisisnotajoke.android.cityscape.lib.DataSyncUtil;
+import com.thisisnotajoke.android.cityscape.lib.ModeManager;
 import com.thisisnotajoke.android.cityscape.lib.World;
 import com.thisisnotajoke.android.cityscape.lib.model.City;
 import com.thisisnotajoke.android.cityscape.mobile.R;
-import com.thisisnotajoke.android.cityscape.mobile.Util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,7 +37,6 @@ public class CompanionConfigActivity extends AppCompatActivity implements Adapte
 
         mCitySpinner = (Spinner) findViewById(R.id.activity_config_city_spinner);
         List<City> cities = new ArrayList<>(Arrays.asList(World.CITIES));
-        cities.add(0, new City(null, "Automatic"));
         mAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, cities);
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -51,14 +52,49 @@ public class CompanionConfigActivity extends AppCompatActivity implements Adapte
         mGoogleApiClient.connect();
     }
 
+    public void onRadioButtonClicked(View view) {
+        // Is the button now checked?
+        boolean checked = ((RadioButton) view).isChecked();
+
+        // Check which radio button was clicked
+        switch(view.getId()) {
+            case R.id.activity_config_gps:
+                if (checked)
+                    setGPS();
+                break;
+            case R.id.activity_config_manual:
+                if (checked)
+                    setManual();
+                break;
+            case R.id.activity_config_random:
+                if (checked)
+                    setRandom();
+                break;
+        }
+    }
+
+    private void setGPS() {
+        ModeManager.setGPS(mGoogleApiClient);
+        mCitySpinner.setVisibility(View.GONE);
+    }
+
+    private void setManual() {
+        ModeManager.setManual(mGoogleApiClient);
+        mCitySpinner.setVisibility(View.VISIBLE);
+    }
+
+    private void setRandom() {
+        ModeManager.setRandom(mGoogleApiClient);
+        mCitySpinner.setVisibility(View.GONE);
+    }
+
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         UUID cityId = ((City) adapterView.getItemAtPosition(i)).getID();
-        String id = cityId != null ? cityId.toString() : null;
-        Log.d(TAG, "Setting city ID to " + id);
+        Log.d(TAG, "Setting city ID to " + cityId);
         DataMap configKeysToOverwrite = new DataMap();
-        configKeysToOverwrite.putString(Util.KEY_CITY, id);
-        Util.overwriteKeysInConfigDataMap(mGoogleApiClient, configKeysToOverwrite);
+        configKeysToOverwrite.putString(DataSyncUtil.KEY_CITY, cityId.toString());
+        DataSyncUtil.overwriteKeysInConfigDataMap(mGoogleApiClient, configKeysToOverwrite);
     }
 
     @Override
@@ -68,14 +104,25 @@ public class CompanionConfigActivity extends AppCompatActivity implements Adapte
 
     @Override
     public void onConnected(Bundle bundle) {
-        Util.fetchConfigDataMap(mGoogleApiClient, new Util.FetchConfigDataMapCallback() {
+        DataSyncUtil.fetchConfigDataMap(mGoogleApiClient, new DataSyncUtil.FetchConfigDataMapCallback() {
             @Override
             public void onConfigDataMapFetched(DataMap config) {
-                String selectedCity = config.getString(Util.KEY_CITY, null);
+                String selectedCity = config.getString(DataSyncUtil.KEY_CITY, null);
                 City city = World.getCity(selectedCity);
                 mCitySpinner.setAdapter(mAdapter);
                 mCitySpinner.setSelection(mAdapter.getPosition(city), false);
                 mCitySpinner.setOnItemSelectedListener(CompanionConfigActivity.this);
+
+                int mode = config.getInt(DataSyncUtil.KEY_MODE, DataSyncUtil.MODE_GPS);
+                switch (mode) {
+                    case DataSyncUtil.MODE_GPS:
+                        break;
+                    case DataSyncUtil.MODE_RANDOM:
+                        break;
+                    case DataSyncUtil.MODE_MANUAL:
+                        mCitySpinner.setVisibility(View.VISIBLE);
+                        break;
+                }
             }
         });
     }
