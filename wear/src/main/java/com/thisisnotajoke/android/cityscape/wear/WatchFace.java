@@ -67,6 +67,7 @@ import com.thisisnotajoke.android.cityscape.wear.controller.PermissionActivity;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import java.io.DataInputStream;
 import java.lang.ref.WeakReference;
 import java.util.TimeZone;
 import java.util.UUID;
@@ -353,20 +354,34 @@ public class WatchFace extends CanvasWatchFaceService {
 
         @Override
         public void onConnected(Bundle bundle) {
-            requestLocationUpdate();
             Wearable.DataApi.addListener(mGoogleApiClient, this);
             DataSyncUtil.fetchConfigDataMap(mGoogleApiClient, new DataSyncUtil.FetchConfigDataMapCallback() {
                 @Override
                 public void onConfigDataMapFetched(DataMap config) {
-                    UUID id;
-                    try {
-                        id = UUID.fromString(config.getString(DataSyncUtil.KEY_CITY));
-                    } catch (NullPointerException e) {
-                        id = null;
+                    switch (config.getInt(DataSyncUtil.KEY_MODE, DataSyncUtil.MODE_GPS)) {
+                        case DataSyncUtil.MODE_GPS:
+                            requestLocationUpdate();
+                            break;
+                        case DataSyncUtil.MODE_MANUAL:
+                            UUID id;
+                            try {
+                                id = UUID.fromString(config.getString(DataSyncUtil.KEY_CITY));
+                            } catch (NullPointerException e) {
+                                id = null;
+                            }
+                            onCityChanged(id);
+                            break;
+                        case DataSyncUtil.MODE_RANDOM:
+                            randomCity();
+                            break;
                     }
-                    onCityChanged(id);
                 }
             });
+        }
+
+        private void randomCity() {
+            mCity = World.getRandomCityFace(getResources());
+            postInvalidate();
         }
 
         @Override

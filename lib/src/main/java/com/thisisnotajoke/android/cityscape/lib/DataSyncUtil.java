@@ -15,6 +15,12 @@ import com.google.android.gms.wearable.Wearable;
 
 public class DataSyncUtil {
     public static final String KEY_CITY = "CITY";
+    public static final String KEY_MODE = "MODE";
+
+    public static final int MODE_GPS = 0;
+    public static final int MODE_MANUAL = 1;
+    public static final int MODE_RANDOM = 2;
+
     public static final String PATH_WITH_FEATURE = "/watch_face_config";
     private static final String TAG = "DataSyncUtil";
 

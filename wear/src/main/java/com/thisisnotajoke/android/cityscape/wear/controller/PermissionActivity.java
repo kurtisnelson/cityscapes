@@ -8,29 +8,29 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.Wearable;
+import com.thisisnotajoke.android.cityscape.lib.ModeManager;
 import com.thisisnotajoke.android.cityscape.wear.R;
 
 public class PermissionActivity extends Activity {
 
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 0;
+    private GoogleApiClient mGoogleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            setContentView(R.layout.activity_permission);
             if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
                 request();
+            } else {
+                finish();
             }
-            View fixButton = findViewById(R.id.activity_permission_fix);
-            fixButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    request();
-                }
-            });
         } else {
             finish();
         }
@@ -45,10 +45,37 @@ public class PermissionActivity extends Activity {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_LOCATION: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    setGPS();
+                } else {
                     finish();
                 }
             }
         }
+    }
+
+    private void setGPS() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+                    @Override
+                    public void onConnected(Bundle connectionHint) {
+                        ModeManager.setGPS(mGoogleApiClient);
+                        finish();
+                    }
+
+                    @Override
+                    public void onConnectionSuspended(int cause) {
+
+                    }
+                })
+                .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
+                    @Override
+                    public void onConnectionFailed(ConnectionResult result) {
+
+                    }
+                })
+                .addApi(Wearable.API)
+                .build();
+        mGoogleApiClient.connect();
     }
 
     public static Intent newIntent(Context context) {

@@ -2,6 +2,7 @@ package com.thisisnotajoke.android.cityscape.wear.controller;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.wearable.view.BoxInsetLayout;
@@ -109,11 +110,7 @@ public class CityConfigActivity extends Activity implements
     public void onClick(WearableListView.ViewHolder viewHolder) {
         CityItemViewHolder colorItemViewHolder = (CityItemViewHolder) viewHolder;
         UUID id = colorItemViewHolder.mCityItem.mId;
-        if(id == null) {
-            updateConfigDataItem(null);
-        } else {
-            updateConfigDataItem(id.toString());
-        }
+        updateConfigDataItem(id.toString());
         finish();
     }
 
@@ -149,12 +146,15 @@ public class CityConfigActivity extends Activity implements
         DataSyncUtil.overwriteKeysInConfigDataMap(mGoogleApiClient, configKeysToOverwrite);
     }
 
+    public static Intent newIntent(Context context) {
+        return new Intent(context, CityConfigActivity.class);
+    }
+
     private class CityListAdapter extends WearableListView.Adapter {
         private final List<City> mCities;
 
         public CityListAdapter() {
             mCities = new ArrayList<>(Arrays.asList(World.CITIES));
-            mCities.add(0, new City(null, "Automatic"));
         }
 
         @Override

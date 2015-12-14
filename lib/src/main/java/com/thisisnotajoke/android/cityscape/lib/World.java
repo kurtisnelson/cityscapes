@@ -14,6 +14,7 @@ import com.thisisnotajoke.android.cityscape.lib.model.City;
 import org.joda.time.DateTime;
 
 import java.util.GregorianCalendar;
+import java.util.Random;
 import java.util.UUID;
 
 import ch.hsr.geohash.BoundingBox;
@@ -80,5 +81,10 @@ public class World {
             }
         }
         return null;
+    }
+
+    public static FaceLayer getRandomCityFace(Resources resources) {
+        int i = new Random().nextInt(CITIES.length);
+        return CITIES[i].getFace(resources);
     }
 }

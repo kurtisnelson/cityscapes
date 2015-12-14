@@ -29,10 +29,10 @@
                 android:resource="@drawable/preview_city" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.companionConfigurationAction"
-                android:value="com.thisisnotajoke.android.cityscape.CONFIG_CITY" />
+                android:value="com.thisisnotajoke.android.cityscape.CONFIG_MODE" />
             <meta-data
                 android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
-                android:value="com.thisisnotajoke.android.cityscape.CONFIG_CITY" />
+                android:value="com.thisisnotajoke.android.cityscape.CONFIG_MODE" />
 
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService" />
@@ -43,9 +43,11 @@
 
         <activity
             android:name=".controller.CityConfigActivity"
-            android:label="@string/city_config">
+            android:label="@string/city_config" />
+        <activity android:name=".controller.ModeConfigActivity"
+            android:label="@string/mode_config">
             <intent-filter>
-                <action android:name="com.thisisnotajoke.android.cityscape.CONFIG_CITY" />
+                <action android:name="com.thisisnotajoke.android.cityscape.CONFIG_MODE" />
 
                 <category android:name="com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION" />
                 <category android:name="android.intent.category.DEFAULT" />
