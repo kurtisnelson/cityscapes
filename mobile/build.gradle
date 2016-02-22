@@ -8,7 +8,7 @@ android {
         applicationId "com.thisisnotajoke.android.cityscape"
         minSdkVersion 21
         targetSdkVersion 23
-        versionCode 11
+        versionCode 12
         versionName "1.2"
     }
     buildTypes {
@@ -30,6 +30,6 @@ dependencies {
     wearApp project(':wear')
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.1.1'
-    compile 'com.google.android.gms:play-services-wearable:8.3.0'
-    compile 'com.google.android.gms:play-services-location:8.3.0'
+    compile 'com.google.android.gms:play-services-wearable:8.4.0'
+    compile 'com.google.android.gms:play-services-location:8.4.0'
 }
