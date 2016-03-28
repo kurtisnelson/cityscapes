@@ -6,9 +6,10 @@ import android.util.Log;
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
 import com.thisisnotajoke.android.cityscape.lib.layer.Atlanta;
-import com.thisisnotajoke.android.cityscape.lib.layer.BayArea;
+import com.thisisnotajoke.android.cityscape.lib.layer.GoldenGate;
 import com.thisisnotajoke.android.cityscape.lib.layer.Nashville;
 import com.thisisnotajoke.android.cityscape.lib.layer.Rural;
+import com.thisisnotajoke.android.cityscape.lib.layer.Sutro;
 import com.thisisnotajoke.android.cityscape.lib.model.City;
 
 import org.joda.time.DateTime;
@@ -26,7 +27,8 @@ public class World {
     public static final City[] CITIES = {
             new City("df4e4cde-aaf1-496e-9386-298dbe2c84f2", "Atlanta", Atlanta.class, new BoundingBox(34.080341, 33.411764, -84.699899, -83.997117)),
             new City("1c17bfb7-f9d9-4427-86ae-4a56bd26b902", "Nashville", Nashville.class, new BoundingBox(36.262914, 35.888864, -86.975785, -86.405870)),
-            new City("af609807-30be-41b5-868a-6d265ae06dfb", "Bay Area", BayArea.class, new BoundingBox(38.145365,37.077101, -123.083734, -121.070489))
+            new City("28a7243e-a6ae-462f-a780-767415bbbc0c", "Sutro Tower", Sutro.class, new BoundingBox(37.774364,37.726447,-122.470638, -122.398884)),
+            new City("af609807-30be-41b5-868a-6d265ae06dfb", "Golden Gate", GoldenGate.class, new BoundingBox(38.145365,37.077101, -123.083734, -121.070489))
     };
 
     public static Sun calculateSun(WGS84Point point, DateTime time) {

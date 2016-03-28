@@ -4,8 +4,8 @@ import android.content.res.Resources;
 
 import com.thisisnotajoke.android.cityscape.lib.R;
 
-public class BayArea extends SimpleCity {
-    public BayArea(Resources resources) {
-        super(resources.getDrawable(R.drawable.bayarea), resources);
+public class Sutro extends SimpleCity {
+    public Sutro(Resources resources) {
+        super(resources.getDrawable(R.drawable.sutro), resources);
     }
 }
