@@ -1,13 +1,13 @@
-package com.thisisnotajoke.android.cityscape.lib.layer;
+package com.thisisnotajoke.android.cityscape.layer;
 
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 
-import com.thisisnotajoke.android.cityscape.lib.FaceLayer;
-import com.thisisnotajoke.android.cityscape.lib.Sun;
-import com.thisisnotajoke.android.cityscape.lib.SunColors;
+import com.thisisnotajoke.android.cityscape.FaceLayer;
+import com.thisisnotajoke.android.cityscape.Sun;
+import com.thisisnotajoke.android.cityscape.SunColors;
 
 public abstract class SimpleCity extends FaceLayer {
     protected final Drawable mBuilding;

@@ -13,10 +13,8 @@ import android.widget.RadioButton;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.Wearable;
-import com.thisisnotajoke.android.cityscape.lib.DataSyncUtil;
-import com.thisisnotajoke.android.cityscape.lib.ModeManager;
+import com.thisisnotajoke.android.cityscape.ModeManager;
 import com.thisisnotajoke.android.cityscape.wear.R;
 
 public class ModeConfigActivity extends Activity {

@@ -1,10 +1,10 @@
-package com.thisisnotajoke.android.cityscape.lib.model;
+package com.thisisnotajoke.android.cityscape.model;
 
 import android.content.res.Resources;
 import android.util.Log;
 
-import com.thisisnotajoke.android.cityscape.lib.FaceLayer;
-import com.thisisnotajoke.android.cityscape.lib.layer.Rural;
+import com.thisisnotajoke.android.cityscape.FaceLayer;
+import com.thisisnotajoke.android.cityscape.layer.Rural;
 
 import java.util.UUID;
 

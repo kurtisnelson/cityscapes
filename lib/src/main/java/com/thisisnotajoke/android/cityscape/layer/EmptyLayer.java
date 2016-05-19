@@ -1,10 +1,10 @@
-package com.thisisnotajoke.android.cityscape.lib.layer;
+package com.thisisnotajoke.android.cityscape.layer;
 
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 
-import com.thisisnotajoke.android.cityscape.lib.FaceLayer;
+import com.thisisnotajoke.android.cityscape.FaceLayer;
 
 public class EmptyLayer extends FaceLayer {
     public EmptyLayer(Resources resources) {

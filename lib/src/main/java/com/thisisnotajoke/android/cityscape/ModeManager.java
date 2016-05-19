@@ -1,4 +1,4 @@
-package com.thisisnotajoke.android.cityscape.lib;
+package com.thisisnotajoke.android.cityscape;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.DataMap;

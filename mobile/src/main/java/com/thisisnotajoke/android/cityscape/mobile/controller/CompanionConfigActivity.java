@@ -1,6 +1,7 @@
 package com.thisisnotajoke.android.cityscape.mobile.controller;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -13,10 +14,12 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.Wearable;
-import com.thisisnotajoke.android.cityscape.lib.DataSyncUtil;
-import com.thisisnotajoke.android.cityscape.lib.ModeManager;
-import com.thisisnotajoke.android.cityscape.lib.World;
-import com.thisisnotajoke.android.cityscape.lib.model.City;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crash.FirebaseCrash;
+import com.thisisnotajoke.android.cityscape.DataSyncUtil;
+import com.thisisnotajoke.android.cityscape.ModeManager;
+import com.thisisnotajoke.android.cityscape.World;
+import com.thisisnotajoke.android.cityscape.model.City;
 import com.thisisnotajoke.android.cityscape.mobile.R;
 
 import java.util.ArrayList;
@@ -24,15 +27,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-public class CompanionConfigActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, GoogleApiClient.ConnectionCallbacks {
+public class CompanionConfigActivity extends AppCompatActivity
+        implements AdapterView.OnItemSelectedListener, GoogleApiClient.ConnectionCallbacks {
     private Spinner mCitySpinner;
     private static String TAG = "CompanionConfigActivity";
     private GoogleApiClient mGoogleApiClient;
     private ArrayAdapter<City> mAdapter;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         setContentView(R.layout.activity_config);
 
         mCitySpinner = (Spinner) findViewById(R.id.activity_config_city_spinner);
@@ -44,8 +50,9 @@ public class CompanionConfigActivity extends AppCompatActivity implements Adapte
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
                     @Override
-                    public void onConnectionFailed(ConnectionResult connectionResult) {
-                        Log.e(TAG, "Could not connect to play services: " + connectionResult.toString());
+                    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+                        FirebaseCrash.logcat(Log.ERROR, "Could not connect to play services: %s",
+                                connectionResult.toString());
                     }
                 })
                 .build();
@@ -76,6 +83,10 @@ public class CompanionConfigActivity extends AppCompatActivity implements Adapte
     private void setGPS() {
         ModeManager.setGPS(mGoogleApiClient);
         mCitySpinner.setVisibility(View.GONE);
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "gps");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "face");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
     }
 
     private void setManual() {
@@ -86,15 +97,25 @@ public class CompanionConfigActivity extends AppCompatActivity implements Adapte
     private void setRandom() {
         ModeManager.setRandom(mGoogleApiClient);
         mCitySpinner.setVisibility(View.GONE);
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "random");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "face");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
     }
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        UUID cityId = ((City) adapterView.getItemAtPosition(i)).getID();
+        City city = (City) adapterView.getItemAtPosition(i);
+        UUID cityId = city.getID();
         Log.d(TAG, "Setting city ID to " + cityId);
         DataMap configKeysToOverwrite = new DataMap();
         configKeysToOverwrite.putString(DataSyncUtil.KEY_CITY, cityId.toString());
         DataSyncUtil.overwriteKeysInConfigDataMap(mGoogleApiClient, configKeysToOverwrite);
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, cityId.toString());
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "face");
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, city.getName());
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
     }
 
     @Override

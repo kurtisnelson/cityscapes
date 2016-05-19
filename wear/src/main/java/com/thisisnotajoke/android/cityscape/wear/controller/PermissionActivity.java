@@ -9,13 +9,11 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.view.View;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.Wearable;
-import com.thisisnotajoke.android.cityscape.lib.ModeManager;
-import com.thisisnotajoke.android.cityscape.wear.R;
+import com.thisisnotajoke.android.cityscape.ModeManager;
 
 public class PermissionActivity extends Activity {
 

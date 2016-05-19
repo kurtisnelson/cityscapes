@@ -32,6 +32,8 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
@@ -55,13 +57,13 @@ import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
-import com.thisisnotajoke.android.cityscape.lib.DataSyncUtil;
-import com.thisisnotajoke.android.cityscape.lib.FaceLayer;
-import com.thisisnotajoke.android.cityscape.lib.Sun;
-import com.thisisnotajoke.android.cityscape.lib.SunColors;
-import com.thisisnotajoke.android.cityscape.lib.World;
-import com.thisisnotajoke.android.cityscape.lib.layer.Rural;
-import com.thisisnotajoke.android.cityscape.lib.layer.Sky;
+import com.thisisnotajoke.android.cityscape.DataSyncUtil;
+import com.thisisnotajoke.android.cityscape.FaceLayer;
+import com.thisisnotajoke.android.cityscape.Sun;
+import com.thisisnotajoke.android.cityscape.SunColors;
+import com.thisisnotajoke.android.cityscape.World;
+import com.thisisnotajoke.android.cityscape.layer.Rural;
+import com.thisisnotajoke.android.cityscape.layer.Sky;
 import com.thisisnotajoke.android.cityscape.wear.controller.PermissionActivity;
 
 import org.joda.time.DateTime;
@@ -160,7 +162,7 @@ public class WatchFace extends CanvasWatchFaceService {
 
             // Setup time
             mZone = DateTimeZone.forID(TimeZone.getDefault().getID());
-            if(DateFormat.is24HourFormat(WatchFace.this)) {
+            if (DateFormat.is24HourFormat(WatchFace.this)) {
                 mFormatString = "HH:mm";
             } else {
                 mFormatString = "h:mm";
@@ -190,7 +192,7 @@ public class WatchFace extends CanvasWatchFaceService {
         }
 
         public void onCityChanged(UUID city) {
-            if(city != null) {
+            if (city != null) {
                 mCity = World.getCityFace(mResources, city);
             } else {
                 mCity = World.getCurrentCityFace(mResources, mCurrentPoint);
@@ -272,7 +274,7 @@ public class WatchFace extends CanvasWatchFaceService {
 
         private void updateSun() {
             Sun sun = World.calculateSun(mCurrentPoint, DateTime.now(mZone));
-            if(sun != mSun) {
+            if (sun != mSun) {
                 Log.d(TAG, "Sun is now " + sun);
                 mSun = sun;
                 mCity.onSunUpdated(mSun);
@@ -308,7 +310,7 @@ public class WatchFace extends CanvasWatchFaceService {
         }
 
         private void unregisterReceiver() {
-            if(mGoogleApiClient.isConnected()) {
+            if (mGoogleApiClient.isConnected()) {
                 LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
                 Wearable.DataApi.removeListener(mGoogleApiClient, this);
                 mGoogleApiClient.disconnect();
@@ -396,10 +398,10 @@ public class WatchFace extends CanvasWatchFaceService {
         }
 
         private void requestLocationUpdate() {
-            if(!mGoogleApiClient.isConnected())
+            if (!mGoogleApiClient.isConnected())
                 return;
             int permissionCheck = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION);
-            if(permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
                 Log.i(TAG, "Missing location permissions");
                 startActivity(PermissionActivity.newIntent(getApplicationContext()));
                 return;
@@ -413,10 +415,18 @@ public class WatchFace extends CanvasWatchFaceService {
                     .requestLocationUpdates(mGoogleApiClient, locationRequest, this)
                     .setResultCallback(new ResultCallback<Status>() {
                         @Override
-                        public void onResult(Status status) {
+                        public void onResult(@NonNull Status status) {
                             if (!status.isSuccess()) {
                                 Log.w(TAG, "Couldn't request location: " + status.getStatusMessage());
-                                onLocationChanged(LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient));
+                                if (ActivityCompat.checkSelfPermission(WatchFace.this,
+                                        Manifest.permission.ACCESS_FINE_LOCATION)
+                                        != PackageManager.PERMISSION_GRANTED
+                                        && ActivityCompat.checkSelfPermission(WatchFace.this,
+                                        Manifest.permission.ACCESS_COARSE_LOCATION)
+                                        != PackageManager.PERMISSION_GRANTED) {
+                                    onLocationChanged(LocationServices.FusedLocationApi
+                                            .getLastLocation(mGoogleApiClient));
+                                }
                             } else {
                                 Log.d(TAG, "Location updates requested");
                             }

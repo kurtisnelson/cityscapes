@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "293745782627",
+    "firebase_url": "https://cityscape-1316.firebaseio.com",
+    "project_id": "cityscape-1316",
+    "storage_bucket": "cityscape-1316.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:293745782627:android:025cca8ab9ea193a",
+        "android_client_info": {
+          "package_name": "com.thisisnotajoke.android.cityscape"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "293745782627-qak2qep559v6b5n4tigantt65iabmu4u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.thisisnotajoke.android.cityscape",
+            "certificate_hash": "FE45AA847B1F4EAD4447EDC34E185766C8D94DC0"
+          }
+        },
+        {
+          "client_id": "293745782627-orcehodv9vt5mlub41l1sqsmulfoba4g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBwDpGCaMFghVBsW2KQVwqyRMY4ftuyhRE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "293745782627-orcehodv9vt5mlub41l1sqsmulfoba4g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
