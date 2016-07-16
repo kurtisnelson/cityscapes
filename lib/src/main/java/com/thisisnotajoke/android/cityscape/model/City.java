@@ -3,6 +3,7 @@ package com.thisisnotajoke.android.cityscape.model;
 import android.content.res.Resources;
 import android.util.Log;
 
+import com.google.firebase.crash.FirebaseCrash;
 import com.thisisnotajoke.android.cityscape.FaceLayer;
 import com.thisisnotajoke.android.cityscape.layer.Rural;
 
@@ -50,6 +51,7 @@ public class City {
         try {
             return mFace.getConstructor(Resources.class).newInstance(res);
         } catch (Exception e) {
+            FirebaseCrash.report(e);
             Log.e(TAG, "Could not build watch face", e);
             return new Rural(res);
         }

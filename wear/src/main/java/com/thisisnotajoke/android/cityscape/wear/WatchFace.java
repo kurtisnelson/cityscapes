@@ -424,9 +424,10 @@ public class WatchFace extends CanvasWatchFaceService {
                                         && ActivityCompat.checkSelfPermission(WatchFace.this,
                                         Manifest.permission.ACCESS_COARSE_LOCATION)
                                         != PackageManager.PERMISSION_GRANTED) {
-                                    onLocationChanged(LocationServices.FusedLocationApi
-                                            .getLastLocation(mGoogleApiClient));
+                                    return;
                                 }
+                                onLocationChanged(LocationServices.FusedLocationApi
+                                        .getLastLocation(mGoogleApiClient));
                             } else {
                                 Log.d(TAG, "Location updates requested");
                             }
