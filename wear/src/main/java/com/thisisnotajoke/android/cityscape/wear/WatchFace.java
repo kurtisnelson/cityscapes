@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2014 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.thisisnotajoke.android.cityscape.wear;
 
 import android.Manifest;
@@ -39,10 +23,11 @@ import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.animation.DecelerateInterpolator;
-
+import ch.hsr.geohash.WGS84Point;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -65,28 +50,16 @@ import com.thisisnotajoke.android.cityscape.World;
 import com.thisisnotajoke.android.cityscape.layer.Rural;
 import com.thisisnotajoke.android.cityscape.layer.Sky;
 import com.thisisnotajoke.android.cityscape.wear.controller.PermissionActivity;
-
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-
 import java.lang.ref.WeakReference;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
-import ch.hsr.geohash.WGS84Point;
-
-/**
- * Digital watch face with seconds. In ambient mode, the seconds aren't displayed. On devices with
- * low-bit ambient mode, the text is drawn without anti-aliasing in ambient mode.
- */
 public class WatchFace extends CanvasWatchFaceService {
     private static final String TAG = "WatchFace";
 
-    /**
-     * Update rate in milliseconds for interactive mode. We update once a second since seconds are
-     * displayed in interactive mode.
-     */
     private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.MINUTES.toMillis(1);
 
     /**
@@ -124,8 +97,9 @@ public class WatchFace extends CanvasWatchFaceService {
         private Resources mResources;
         private GoogleApiClient mGoogleApiClient;
 
-        private FaceLayer mCity;
-        private FaceLayer mSky = new Sky(mResources);
+        private SparseArray<FaceLayer> mLayers = new SparseArray<>();
+        private static final int SKY_INDEX = 0;
+        private static final int CITY_INDEX = 1;
 
         private ValueAnimator mBottomBoundAnimator = new ValueAnimator();
         private Rect mCardBounds = new Rect();
@@ -134,7 +108,9 @@ public class WatchFace extends CanvasWatchFaceService {
         @Override
         public void onCreate(SurfaceHolder holder) {
             super.onCreate(holder);
-            mCity = new Rural(getResources());
+            mResources = WatchFace.this.getResources();
+            mLayers.put(SKY_INDEX, new Sky(mResources));
+            mLayers.put(CITY_INDEX, new Rural(getResources()));
             SunColors.initialize(getResources());
 
             mGoogleApiClient = new GoogleApiClient.Builder(WatchFace.this)
@@ -154,10 +130,9 @@ public class WatchFace extends CanvasWatchFaceService {
                     .setCardPeekMode(WatchFaceStyle.PEEK_MODE_VARIABLE)
                     .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
                     .setShowSystemUiTime(false)
-                    .setHotwordIndicatorGravity(Gravity.TOP | Gravity.RIGHT)
-                    .setStatusBarGravity(Gravity.TOP | Gravity.LEFT)
+                    .setHotwordIndicatorGravity(Gravity.TOP | Gravity.END)
+                    .setStatusBarGravity(Gravity.TOP | Gravity.START)
                     .build());
-            mResources = WatchFace.this.getResources();
             mTextPaint = createTextPaint(mResources.getColor(R.color.text));
 
             // Setup time
@@ -191,11 +166,11 @@ public class WatchFace extends CanvasWatchFaceService {
             invalidate();
         }
 
-        public void onCityChanged(UUID city) {
+        void onCityChanged(UUID city) {
             if (city != null) {
-                mCity = World.getCityFace(mResources, city);
+                mLayers.put(CITY_INDEX, World.getCityFace(mResources, city));
             } else {
-                mCity = World.getCurrentCityFace(mResources, mCurrentPoint);
+                mLayers.put(CITY_INDEX, World.getCurrentCityFace(mResources, mCurrentPoint));
             }
             postInvalidate();
         }
@@ -204,8 +179,9 @@ public class WatchFace extends CanvasWatchFaceService {
         public void onAmbientModeChanged(boolean inAmbientMode) {
             super.onAmbientModeChanged(inAmbientMode);
             if (mAmbient != inAmbientMode) {
-                mCity.onAmbientModeChanged(inAmbientMode);
-                mSky.onAmbientModeChanged(inAmbientMode);
+                for(int i = 0; i < mLayers.size(); i++) {
+                  mLayers.valueAt(i).onAmbientModeChanged(inAmbientMode);
+                }
                 mAmbient = inAmbientMode;
                 if (mLowBitAmbient) {
                     mTextPaint.setAntiAlias(!inAmbientMode);
@@ -263,8 +239,9 @@ public class WatchFace extends CanvasWatchFaceService {
         public void onDraw(Canvas canvas, Rect bounds) {
             Rect restrictedBounds = new Rect(bounds);
             restrictedBounds.bottom = ((Float) mBottomBoundAnimator.getAnimatedValue()).intValue();
-            mSky.draw(canvas, bounds);
-            mCity.draw(canvas, bounds);
+            for (int i = 0; i < mLayers.size(); i++) {
+                mLayers.valueAt(i).draw(canvas, bounds);
+            }
             drawClock(canvas, restrictedBounds);
 
             if (mBottomBoundAnimator.isRunning()) {
@@ -277,8 +254,9 @@ public class WatchFace extends CanvasWatchFaceService {
             if (sun != mSun) {
                 Log.d(TAG, "Sun is now " + sun);
                 mSun = sun;
-                mCity.onSunUpdated(mSun);
-                mSky.onSunUpdated(mSun);
+                for (int i = 0; i < mLayers.size(); i++) {
+                  mLayers.valueAt(i).onSunUpdated(sun);
+                }
             }
         }
 
@@ -388,7 +366,7 @@ public class WatchFace extends CanvasWatchFaceService {
 
         private void randomCity() {
             Log.d(TAG, "Picking random city face");
-            mCity = World.getRandomCityFace(getResources());
+            mLayers.put(CITY_INDEX, World.getRandomCityFace(getResources()));
             postInvalidate();
         }
 
@@ -445,7 +423,7 @@ public class WatchFace extends CanvasWatchFaceService {
             if(mCurrentPoint == null || location.getLongitude() != mCurrentPoint.getLongitude() || location.getLatitude() != mCurrentPoint.getLatitude()) {
                 Log.d(TAG, "Selecting face based on location");
                 mCurrentPoint = new WGS84Point(location.getLatitude(), location.getLongitude());
-                mCity = World.getCurrentCityFace(mResources, mCurrentPoint);
+                mLayers.put(CITY_INDEX, World.getCurrentCityFace(mResources, mCurrentPoint));
                 postInvalidate();
             }
         }
