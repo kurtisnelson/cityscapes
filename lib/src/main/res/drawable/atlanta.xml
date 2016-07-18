@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="74dp"
-    android:height="174dp"
-    android:viewportWidth="74"
-    android:viewportHeight="174">
+  android:width="74dp"
+  android:height="174dp"
+  android:viewportWidth="74"
+  android:viewportHeight="174">
 
-    <path
-        android:fillColor="@color/atlanta_roof"
-        android:pathData="M60.1324577332,61.38254928588867 L14.1324586868,61.38254928588867
+  <path
+    android:fillColor="@color/atlanta_roof"
+    android:pathData="M60.1324577332,61.38254928588867 L14.1324586868,61.38254928588867
 L33.9570388794,16.624160766601562 L41.2443389893,16.624160766601562
-L60.1324577332,61.38254928588867 Z" />
-    <path
-        android:fillColor="@color/atlanta_tip"
-        android:pathData="M35,7.442953109741211 L40,7.442953109741211 L40,16.624160766601562
-L35,16.624160766601562 L35,7.442953109741211 Z" />
-    <path
-        android:fillColor="@color/atlanta_tip"
-        android:pathData="M37.5,4 L40,7.442953109741211 L35,7.442953109741211 Z" />
-    <path
-        android:fillColor="@color/atlanta_body"
-        android:pathData="M14,61.38254928588867 L60,61.38254928588867 L60,95.81208038330078
-L14,95.81208038330078 L14,61.38254928588867 Z" />
-    <path
-        android:fillColor="@color/atlanta_body"
-        android:pathData="M8,95.81208038330078 L66,95.81208038330078 L66,175 L8,175 L8,95.81208038330078 Z" />
+L60.1324577332,61.38254928588867 Z"/>
+  <path
+    android:fillColor="@color/atlanta_tip"
+    android:pathData="M35,7.442953109741211 L40,7.442953109741211 L40,16.624160766601562
+L35,16.624160766601562 L35,7.442953109741211 Z"/>
+  <path
+    android:fillColor="@color/atlanta_tip"
+    android:pathData="M37.5,4 L40,7.442953109741211 L35,7.442953109741211 Z"/>
+  <path
+    android:fillColor="@color/atlanta_body"
+    android:pathData="M14,61.38254928588867 L60,61.38254928588867 L60,95.81208038330078
+L14,95.81208038330078 L14,61.38254928588867 Z"/>
+  <path
+    android:fillColor="@color/atlanta_body"
+    android:pathData="M8,95.81208038330078 L66,95.81208038330078 L66,175 L8,175 L8,95.81208038330078 Z"/>
 </vector>

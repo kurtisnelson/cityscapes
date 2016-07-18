@@ -1,4 +1,4 @@
 <resources>
-    <string name="requires_location">CityScape is useless if we can\'t figure out what city you are in.</string>
-    <string name="fix">Fix</string>
+  <string name="requires_location">CityScape is useless if we can\'t figure out what city you are in.</string>
+  <string name="fix">Fix</string>
 </resources>

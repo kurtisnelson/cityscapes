@@ -1,8 +1,8 @@
 package com.thisisnotajoke.android.cityscape;
 
 public enum Sun {
-    DAY,
-    NIGHT,
-    SUNSET,
-    SUNRISE;
+  DAY,
+  NIGHT,
+  SUNSET,
+  SUNRISE;
 }

@@ -1,65 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.thisisnotajoke.android.cityscape.wear">
+  package="com.thisisnotajoke.android.cityscape.wear">
 
-    <uses-feature android:name="android.hardware.type.watch" />
+  <uses-feature android:name="android.hardware.type.watch"/>
 
-    <uses-permission android:name="com.google.android.permission.PROVIDE_BACKGROUND" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+  <uses-permission android:name="com.google.android.permission.PROVIDE_BACKGROUND"/>
+  <uses-permission android:name="android.permission.WAKE_LOCK"/>
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
-    <application
-        android:allowBackup="true"
-        android:fullBackupContent="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@android:style/Theme.DeviceDefault">
-        <service
-            android:name=".WatchFace"
-            android:label="@string/app_name"
-            android:permission="android.permission.BIND_WALLPAPER">
-            <meta-data
-                android:name="android.service.wallpaper"
-                android:resource="@xml/watch_face" />
-            <meta-data
-                android:name="com.google.android.wearable.watchface.preview"
-                android:resource="@drawable/preview_city" />
-            <meta-data
-                android:name="com.google.android.wearable.watchface.preview_circular"
-                android:resource="@drawable/preview_city" />
-            <meta-data
-                android:name="com.google.android.wearable.watchface.companionConfigurationAction"
-                android:value="com.thisisnotajoke.android.cityscape.CONFIG_MODE" />
-            <meta-data
-                android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
-                android:value="com.thisisnotajoke.android.cityscape.CONFIG_MODE" />
+  <application
+    android:allowBackup="true"
+    android:fullBackupContent="true"
+    android:icon="@mipmap/ic_launcher"
+    android:label="@string/app_name"
+    android:theme="@android:style/Theme.DeviceDefault">
+    <service
+      android:name=".WatchFace"
+      android:label="@string/app_name"
+      android:permission="android.permission.BIND_WALLPAPER">
+      <meta-data
+        android:name="android.service.wallpaper"
+        android:resource="@xml/watch_face"/>
+      <meta-data
+        android:name="com.google.android.wearable.watchface.preview"
+        android:resource="@drawable/preview_city"/>
+      <meta-data
+        android:name="com.google.android.wearable.watchface.preview_circular"
+        android:resource="@drawable/preview_city"/>
+      <meta-data
+        android:name="com.google.android.wearable.watchface.companionConfigurationAction"
+        android:value="com.thisisnotajoke.android.cityscape.CONFIG_MODE"/>
+      <meta-data
+        android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
+        android:value="com.thisisnotajoke.android.cityscape.CONFIG_MODE"/>
 
-            <intent-filter>
-                <action android:name="android.service.wallpaper.WallpaperService" />
+      <intent-filter>
+        <action android:name="android.service.wallpaper.WallpaperService"/>
 
-                <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE" />
-            </intent-filter>
-        </service>
+        <category android:name="com.google.android.wearable.watchface.category.WATCH_FACE"/>
+      </intent-filter>
+    </service>
 
-        <activity
-            android:name=".controller.CityConfigActivity"
-            android:label="@string/city_config" />
-        <activity android:name=".controller.ModeConfigActivity"
-            android:label="@string/mode_config">
-            <intent-filter>
-                <action android:name="com.thisisnotajoke.android.cityscape.CONFIG_MODE" />
+    <activity
+      android:name=".controller.CityConfigActivity"
+      android:label="@string/city_config"/>
+    <activity
+      android:name=".controller.ModeConfigActivity"
+      android:label="@string/mode_config">
+      <intent-filter>
+        <action android:name="com.thisisnotajoke.android.cityscape.CONFIG_MODE"/>
 
-                <category android:name="com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
+        <category android:name="com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+      </intent-filter>
+    </activity>
 
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
+    <meta-data
+      android:name="com.google.android.gms.version"
+      android:value="@integer/google_play_services_version"/>
 
-        <activity
-            android:name=".controller.PermissionActivity"/>
-    </application>
+    <activity
+      android:name=".controller.PermissionActivity"/>
+  </application>
 
 </manifest>

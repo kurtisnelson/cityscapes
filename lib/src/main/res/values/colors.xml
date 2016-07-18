@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="text">#ffffff</color>
-    <!-- sky -->
-    <color name="sky_night">#000000</color>
-    <color name="sky_day">#4A90E2</color>
-    <color name="sky_sunset">#FF785F</color>
-    <color name="sky_sunrise">#E39A1E</color>
-    <!-- atlanta -->
-    <color name="atlanta_tip">#8C8686</color>
-    <color name="atlanta_tip_night">#EEEEEE</color>
-    <color name="atlanta_roof">#87620F</color>
-    <color name="atlanta_roof_night">#F8B51C</color>
-    <color name="atlanta_body">#8B572A</color>
-    <!-- nashville -->
-    <color name="nashville_body">#8C8686</color>
-    <color name="nashville_glass">#0000DD</color>
+  <color name="text">#ffffff</color>
+  <!-- sky -->
+  <color name="sky_night">#000000</color>
+  <color name="sky_day">#4A90E2</color>
+  <color name="sky_sunset">#FF785F</color>
+  <color name="sky_sunrise">#E39A1E</color>
+  <!-- atlanta -->
+  <color name="atlanta_tip">#8C8686</color>
+  <color name="atlanta_tip_night">#EEEEEE</color>
+  <color name="atlanta_roof">#87620F</color>
+  <color name="atlanta_roof_night">#F8B51C</color>
+  <color name="atlanta_body">#8B572A</color>
+  <!-- nashville -->
+  <color name="nashville_body">#8C8686</color>
+  <color name="nashville_glass">#0000DD</color>
 </resources>
