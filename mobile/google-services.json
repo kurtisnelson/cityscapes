@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "293745782627-l1rr84kphap0rk800h5ll8dtbuco0lak.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.thisisnotajoke.android.cityscape",
+            "certificate_hash": "3E452FD48FAFD2E6C3724D37C31237F75E70EF91"
+          }
+        },
+        {
           "client_id": "293745782627-qak2qep559v6b5n4tigantt65iabmu4u.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -44,6 +52,53 @@
               "client_type": 3
             }
           ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:293745782627:android:0298fbafddab7264",
+        "android_client_info": {
+          "package_name": "com.thisisnotajoke.android.cityscape.wear"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "293745782627-74mbr1t48h8f00p977g3bv7eueoi0odn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.thisisnotajoke.android.cityscape.wear",
+            "certificate_hash": "3E452FD48FAFD2E6C3724D37C31237F75E70EF91"
+          }
+        },
+        {
+          "client_id": "293745782627-c04ua89qirqd5pn0gv178vuag39isufm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.thisisnotajoke.android.cityscape.wear",
+            "certificate_hash": "FE45AA847B1F4EAD4447EDC34E185766C8D94DC0"
+          }
+        },
+        {
+          "client_id": "293745782627-orcehodv9vt5mlub41l1sqsmulfoba4g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBwDpGCaMFghVBsW2KQVwqyRMY4ftuyhRE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
         },
         "ads_service": {
           "status": 2

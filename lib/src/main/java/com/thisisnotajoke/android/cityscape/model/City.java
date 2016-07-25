@@ -4,7 +4,6 @@ import android.content.res.Resources;
 import android.util.Log;
 import ch.hsr.geohash.BoundingBox;
 import ch.hsr.geohash.WGS84Point;
-import com.google.firebase.crash.FirebaseCrash;
 import com.thisisnotajoke.android.cityscape.FaceLayer;
 import com.thisisnotajoke.android.cityscape.layer.Rural;
 import java.util.UUID;
@@ -22,12 +21,12 @@ public class City {
     mBoundingBox = box;
   }
 
-  public City(String id, String name, Class<? extends FaceLayer> faceClass) {
+  private City(String id, String name, Class<? extends FaceLayer> faceClass) {
     this(id, name);
     mFace = faceClass;
   }
 
-  public City(String id, String name) {
+  private City(String id, String name) {
     if (id != null) {
       mID = UUID.fromString(id);
     }
@@ -51,7 +50,6 @@ public class City {
     try {
       return mFace.getConstructor(Resources.class).newInstance(res);
     } catch (Exception e) {
-      FirebaseCrash.report(e);
       Log.e(TAG, "Could not build watch face", e);
       return new Rural(res);
     }
