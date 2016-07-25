@@ -1,6 +1,7 @@
 package com.thisisnotajoke.android.cityscape;
 
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -34,7 +35,7 @@ public class DataSyncUtil {
     Wearable.NodeApi.getLocalNode(client).setResultCallback(
         new ResultCallback<NodeApi.GetLocalNodeResult>() {
           @Override
-          public void onResult(NodeApi.GetLocalNodeResult getLocalNodeResult) {
+          public void onResult(@NonNull NodeApi.GetLocalNodeResult getLocalNodeResult) {
             String localNode = getLocalNodeResult.getNode().getId();
             Uri uri = new Uri.Builder()
                 .scheme("wear")
@@ -64,7 +65,7 @@ public class DataSyncUtil {
     );
   }
 
-  public static void putConfigDataItem(GoogleApiClient googleApiClient, DataMap newConfig) {
+  private static void putConfigDataItem(GoogleApiClient googleApiClient, DataMap newConfig) {
     PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(PATH_WITH_FEATURE);
     putDataMapRequest.setUrgent();
     DataMap configToPut = putDataMapRequest.getDataMap();
@@ -72,7 +73,7 @@ public class DataSyncUtil {
     Wearable.DataApi.putDataItem(googleApiClient, putDataMapRequest.asPutDataRequest())
         .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
           @Override
-          public void onResult(DataApi.DataItemResult dataItemResult) {
+          public void onResult(@NonNull DataApi.DataItemResult dataItemResult) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
               Log.d(TAG, "putDataItem result status: " + dataItemResult.getStatus());
             }
@@ -84,12 +85,12 @@ public class DataSyncUtil {
 
     private final FetchConfigDataMapCallback mCallback;
 
-    public DataItemResultCallback(FetchConfigDataMapCallback callback) {
+    DataItemResultCallback(FetchConfigDataMapCallback callback) {
       mCallback = callback;
     }
 
     @Override
-    public void onResult(DataApi.DataItemResult dataItemResult) {
+    public void onResult(@NonNull DataApi.DataItemResult dataItemResult) {
       if (dataItemResult.getStatus().isSuccess()) {
         if (dataItemResult.getDataItem() != null) {
           DataItem configDataItem = dataItemResult.getDataItem();

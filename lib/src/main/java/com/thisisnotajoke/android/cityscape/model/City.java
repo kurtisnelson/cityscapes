@@ -1,6 +1,7 @@
 package com.thisisnotajoke.android.cityscape.model;
 
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import ch.hsr.geohash.BoundingBox;
 import ch.hsr.geohash.WGS84Point;

@@ -1,7 +1,7 @@
 package com.thisisnotajoke.android.cityscape.layer;
 
 import android.content.res.Resources;
-import com.thisisnotajoke.android.cityscape.R;
+import com.thisisnotajoke.android.cityscape.lib.R;
 
 public class Rural extends SimpleCity {
 

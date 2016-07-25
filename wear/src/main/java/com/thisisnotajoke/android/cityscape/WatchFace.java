@@ -1,4 +1,4 @@
-package com.thisisnotajoke.android.cityscape.wear;
+package com.thisisnotajoke.android.cityscape;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
@@ -42,18 +42,14 @@ import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
-import com.thisisnotajoke.android.cityscape.DataSyncUtil;
-import com.thisisnotajoke.android.cityscape.FaceLayer;
-import com.thisisnotajoke.android.cityscape.Sun;
-import com.thisisnotajoke.android.cityscape.SunColors;
-import com.thisisnotajoke.android.cityscape.World;
 import com.thisisnotajoke.android.cityscape.layer.Rural;
 import com.thisisnotajoke.android.cityscape.layer.Sky;
-import com.thisisnotajoke.android.cityscape.wear.controller.PermissionActivity;
+import com.thisisnotajoke.android.cityscape.controller.PermissionActivity;
 import java.lang.ref.WeakReference;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -359,6 +355,7 @@ public class WatchFace extends CanvasWatchFaceService {
           try {
             id = UUID.fromString(cityId);
           } catch (NullPointerException e) {
+            Log.e(TAG, "Invalid manual UUID, using default");
             id = null;
           }
           onCityChanged(id);
@@ -457,7 +454,7 @@ public class WatchFace extends CanvasWatchFaceService {
 
     private final WeakReference<WatchFace.Engine> mWeakReference;
 
-    public EngineHandler(WatchFace.Engine reference) {
+    EngineHandler(WatchFace.Engine reference) {
       mWeakReference = new WeakReference<>(reference);
     }
 

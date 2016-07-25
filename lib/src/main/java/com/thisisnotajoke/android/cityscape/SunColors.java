@@ -4,6 +4,8 @@ import android.content.res.Resources;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrixColorFilter;
 
+import com.thisisnotajoke.android.cityscape.lib.R;
+
 public class SunColors {
 
   public static final ColorFilter CHANGE_FILTER = new ColorMatrixColorFilter(new float[]{  //4700K

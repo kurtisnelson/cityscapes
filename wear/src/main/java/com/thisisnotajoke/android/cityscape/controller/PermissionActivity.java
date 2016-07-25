@@ -1,4 +1,4 @@
-package com.thisisnotajoke.android.cityscape.wear.controller;
+package com.thisisnotajoke.android.cityscape.controller;
 
 import android.Manifest;
 import android.app.Activity;
