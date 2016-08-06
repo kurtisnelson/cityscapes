@@ -345,6 +345,7 @@ public class WatchFace extends CanvasWatchFaceService {
     }
 
     private void onConfigChanged(int mode, String cityId) {
+      Logger.d(TAG, "configuration changed to mode %i, city %s", mode, cityId);
       switch (mode) {
         case DataSyncUtil.MODE_GPS:
           mCurrentPoint = null;
