@@ -1,12 +1,10 @@
 package com.thisisnotajoke.android.cityscape;
 
-import android.Manifest;
 import android.animation.ValueAnimator;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -17,8 +15,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.DateFormat;
@@ -27,7 +23,7 @@ import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.animation.DecelerateInterpolator;
-import ch.hsr.geohash.WGS84Point;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -42,16 +38,19 @@ import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
+import com.thisisnotajoke.android.cityscape.controller.PermissionActivity;
 import com.thisisnotajoke.android.cityscape.layer.Rural;
 import com.thisisnotajoke.android.cityscape.layer.Sky;
-import com.thisisnotajoke.android.cityscape.controller.PermissionActivity;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+
 import java.lang.ref.WeakReference;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
+import ch.hsr.geohash.WGS84Point;
 
 public class WatchFace extends CanvasWatchFaceService {
 
@@ -63,6 +62,7 @@ public class WatchFace extends CanvasWatchFaceService {
    * Handler message id for updating the time periodically in interactive mode.
    */
   private static final int MSG_UPDATE_TIME = 0;
+  private static final float MIN_DISPLACEMENT = 500;
   private String mFormatString;
 
   @Override
@@ -71,7 +71,7 @@ public class WatchFace extends CanvasWatchFaceService {
   }
 
   private class Engine extends CanvasWatchFaceService.Engine implements
-      GoogleApiClient.ConnectionCallbacks, LocationListener, DataApi.DataListener {
+          GoogleApiClient.ConnectionCallbacks, LocationListener, DataApi.DataListener {
 
     final Handler mUpdateTimeHandler = new EngineHandler(this);
 
@@ -112,25 +112,25 @@ public class WatchFace extends CanvasWatchFaceService {
       SunColors.initialize(getResources());
 
       mGoogleApiClient = new GoogleApiClient.Builder(WatchFace.this)
-          .addApi(LocationServices.API)
-          .addApi(Wearable.API)  // used for data layer API
-          .addConnectionCallbacks(this)
-          .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
-            @Override
-            public void onConnectionFailed(ConnectionResult connectionResult) {
-              Log.e(TAG, "Could not connect to play services: " + connectionResult.toString());
-            }
-          })
-          .build();
+              .addApi(LocationServices.API)
+              .addApi(Wearable.API)  // used for data layer API
+              .addConnectionCallbacks(this)
+              .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
+                @Override
+                public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+                  Logger.e(TAG, "Failed to connect to play services: %s", connectionResult);
+                }
+              })
+              .build();
       mGoogleApiClient.connect();
 
       setWatchFaceStyle(new WatchFaceStyle.Builder(WatchFace.this)
-          .setCardPeekMode(WatchFaceStyle.PEEK_MODE_VARIABLE)
-          .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
-          .setShowSystemUiTime(false)
-          .setHotwordIndicatorGravity(Gravity.TOP | Gravity.END)
-          .setStatusBarGravity(Gravity.TOP | Gravity.START)
-          .build());
+              .setCardPeekMode(WatchFaceStyle.PEEK_MODE_VARIABLE)
+              .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
+              .setShowSystemUiTime(false)
+              .setHotwordIndicatorGravity(Gravity.TOP | Gravity.END)
+              .setStatusBarGravity(Gravity.TOP | Gravity.START)
+              .build());
       mTextPaint = createTextPaint(mResources.getColor(R.color.text));
 
       // Setup time
@@ -227,7 +227,7 @@ public class WatchFace extends CanvasWatchFaceService {
 
         mBottomBoundAnimator.cancel();
         mBottomBoundAnimator.setFloatValues((Float) mBottomBoundAnimator.getAnimatedValue(),
-            mCardBounds.top > 0 ? mCardBounds.top : mHeight);
+                mCardBounds.top > 0 ? mCardBounds.top : mHeight);
         mBottomBoundAnimator.setDuration(200);
         mBottomBoundAnimator.start();
         postInvalidate();
@@ -326,7 +326,7 @@ public class WatchFace extends CanvasWatchFaceService {
       if (shouldTimerBeRunning()) {
         long timeMs = System.currentTimeMillis();
         long delayMs = INTERACTIVE_UPDATE_RATE_MS
-            - (timeMs % INTERACTIVE_UPDATE_RATE_MS);
+                - (timeMs % INTERACTIVE_UPDATE_RATE_MS);
         mUpdateTimeHandler.sendEmptyMessageDelayed(MSG_UPDATE_TIME, delayMs);
       }
     }
@@ -335,17 +335,17 @@ public class WatchFace extends CanvasWatchFaceService {
     public void onConnected(Bundle bundle) {
       Wearable.DataApi.addListener(mGoogleApiClient, this);
       DataSyncUtil
-          .fetchConfigDataMap(mGoogleApiClient, new DataSyncUtil.FetchConfigDataMapCallback() {
-            @Override
-            public void onConfigDataMapFetched(DataMap config) {
-              onConfigChanged(config.getInt(DataSyncUtil.KEY_MODE, DataSyncUtil.MODE_GPS),
-                  config.getString(DataSyncUtil.KEY_CITY));
-            }
-          });
+              .fetchConfigDataMap(mGoogleApiClient, new DataSyncUtil.FetchConfigDataMapCallback() {
+                @Override
+                public void onConfigDataMapFetched(DataMap config) {
+                  onConfigChanged(config.getInt(DataSyncUtil.KEY_MODE, DataSyncUtil.MODE_GPS),
+                          config.getString(DataSyncUtil.KEY_CITY));
+                }
+              });
     }
 
     private void onConfigChanged(int mode, String cityId) {
-      Logger.d(TAG, "configuration changed to mode %i, city %s", mode, cityId);
+      Logger.d(TAG, "configuration changed to mode %d, city %s", mode, cityId);
       switch (mode) {
         case DataSyncUtil.MODE_GPS:
           mCurrentPoint = null;
@@ -378,59 +378,73 @@ public class WatchFace extends CanvasWatchFaceService {
 
     }
 
+    @SuppressWarnings("MissingPermission")
     private void requestLocationUpdate() {
       if (!mGoogleApiClient.isConnected()) {
+        Logger.w(TAG, "requestLocationUpdate called with disconnected api client");
         return;
       }
-      int permissionCheck = ContextCompat
-          .checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION);
-      if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-        Log.i(TAG, "Missing location permissions");
+
+      if (PermissionActivity.isMissingPermission(WatchFace.this)) {
+        Logger.i(TAG, "Missing location permissions");
         startActivity(PermissionActivity.newIntent(getApplicationContext()));
         return;
       }
+      if(mCurrentPoint == null) {
+        Logger.v(TAG, "Location unknown, requesting one-off location");
+        LocationRequest oneOff = LocationRequest.create()
+                .setNumUpdates(1)
+                .setExpirationDuration(TimeUnit.MINUTES.toMillis(1))
+                .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        LocationServices.FusedLocationApi
+                .requestLocationUpdates(mGoogleApiClient, oneOff, this)
+                .setResultCallback(new ResultCallback<Status>() {
+                  @Override
+                  public void onResult(@NonNull Status status) {
+                    if (!status.isSuccess()) {
+                      Logger.w(TAG, "Couldn't request one-off location %s", status.getStatusMessage());
+                    } else {
+                      Logger.v(TAG, "Single location requested");
+                    }
+                  }
+                });
+      }
+
       LocationRequest locationRequest = LocationRequest.create()
-          .setPriority(LocationRequest.PRIORITY_LOW_POWER)
-          .setFastestInterval(TimeUnit.SECONDS.toMillis(30))
-          .setInterval(TimeUnit.MINUTES.toMillis(5));
+              .setPriority(LocationRequest.PRIORITY_LOW_POWER)
+              .setFastestInterval(TimeUnit.SECONDS.toMillis(30))
+              .setSmallestDisplacement(MIN_DISPLACEMENT)
+              .setInterval(TimeUnit.MINUTES.toMillis(5));
 
       LocationServices.FusedLocationApi
-          .requestLocationUpdates(mGoogleApiClient, locationRequest, this)
-          .setResultCallback(new ResultCallback<Status>() {
-            @Override
-            public void onResult(@NonNull Status status) {
-              if (!status.isSuccess()) {
-                Log.w(TAG, "Couldn't request location: " + status.getStatusMessage());
-                if (ActivityCompat.checkSelfPermission(WatchFace.this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED
-                    && ActivityCompat.checkSelfPermission(WatchFace.this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED) {
-                  return;
+              .requestLocationUpdates(mGoogleApiClient, locationRequest, this)
+              .setResultCallback(new ResultCallback<Status>() {
+                @Override
+                public void onResult(@NonNull Status status) {
+                  if (!status.isSuccess()) {
+                    Logger.w(TAG, "Couldn't request location %s", status.getStatusMessage());
+                  } else {
+                    Logger.d(TAG, "Low power location updates requested");
+                  }
                 }
-                onLocationChanged(LocationServices.FusedLocationApi
-                    .getLastLocation(mGoogleApiClient));
-              } else {
-                Log.d(TAG, "Location updates requested");
-              }
-            }
-          });
+              });
     }
 
     @Override
     public void onLocationChanged(Location location) {
       if (location == null) {
-        Log.w(TAG, "Got null location");
+        Logger.w(TAG, "Got null location");
         return;
       }
-      Log.d(TAG, "recieved " + location);
+      Logger.d(TAG, "New location: %s", location);
       if (mCurrentPoint == null || location.getLongitude() != mCurrentPoint.getLongitude()
-          || location.getLatitude() != mCurrentPoint.getLatitude()) {
-        Log.d(TAG, "Selecting face based on location");
+              || location.getLatitude() != mCurrentPoint.getLatitude()) {
+        Logger.v(TAG, "Selecting face based on location");
         mCurrentPoint = new WGS84Point(location.getLatitude(), location.getLongitude());
         mLayers.put(CITY_INDEX, World.getCurrentCityFace(mResources, mCurrentPoint));
         postInvalidate();
+      } else {
+        Logger.v(TAG, "Location didn't change enough, skipping invalidate");
       }
     }
 

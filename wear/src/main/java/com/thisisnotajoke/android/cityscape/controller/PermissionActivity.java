@@ -6,9 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.Wearable;
@@ -23,8 +24,7 @@ public class PermissionActivity extends Activity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-        != PackageManager.PERMISSION_GRANTED) {
+    if (isMissingPermission(this)) {
       Log.d(TAG, "We do not have coarse location permissions");
       request();
     } else {
@@ -41,8 +41,8 @@ public class PermissionActivity extends Activity {
   }
 
   @Override
-  public void onRequestPermissionsResult(int requestCode, String permissions[],
-      int[] grantResults) {
+  public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
+                                         @NonNull int[] grantResults) {
     switch (requestCode) {
       case MY_PERMISSIONS_REQUEST_LOCATION: {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -70,7 +70,7 @@ public class PermissionActivity extends Activity {
         })
         .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
           @Override
-          public void onConnectionFailed(ConnectionResult result) {
+          public void onConnectionFailed(@NonNull ConnectionResult result) {
 
           }
         })
@@ -83,5 +83,11 @@ public class PermissionActivity extends Activity {
     Intent intent = new Intent(context, PermissionActivity.class);
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     return intent;
+  }
+
+  public static boolean isMissingPermission(Context context) {
+    return ActivityCompat.checkSelfPermission(context,
+            Manifest.permission.ACCESS_COARSE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED;
   }
 }
