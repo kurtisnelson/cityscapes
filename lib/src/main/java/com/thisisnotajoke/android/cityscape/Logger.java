@@ -22,13 +22,13 @@ public class Logger {
   }
 
   public static void d(String tag, String msg, Object... args) {
-    if (DEBUG && Log.isLoggable(tag, Log.DEBUG)) {
+    if (DEBUG) {
       Log.d(tag, getFormattedMsg(msg, args));
     }
   }
 
   public static void v(String tag, String msg, Object... args) {
-    if (DEBUG && Log.isLoggable(tag, Log.VERBOSE)) {
+    if (DEBUG) {
       Log.v(tag, getFormattedMsg(msg, args));
     }
   }
