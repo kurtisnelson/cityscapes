@@ -19,7 +19,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.google.android.support:wearable:1.4.0'
-    compile 'com.google.android.gms:play-services-wearable:9.2.1'
+    compile 'com.google.android.gms:play-services-wearable:9.4.0'
     compile 'ch.hsr:geohash:1.1.0'
     compile 'com.luckycatlabs:SunriseSunsetCalculator:1.2'
     compile 'joda-time:joda-time:2.8.2'
